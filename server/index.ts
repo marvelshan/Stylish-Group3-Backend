@@ -2,10 +2,12 @@ import express, { Router } from 'express';
 import swaggerUi from 'swagger-ui-express';
 import cookieParser from 'cookie-parser';
 import productRouter from './routes/product.js';
+import collectionRouter from './routes/collection.js';
 import userRouter from './routes/user.js';
 import campaignRouter from './routes/campaign.js';
 import orderRouter from './routes/order.js';
 import reportRouter from './routes/report.js';
+import couponRouter from './routes/coupon.js';
 import branch from './middleware/branch.js';
 import authenticate from './middleware/authenticate.js';
 import authorization from './middleware/authorization.js';
@@ -38,6 +40,8 @@ app.use('/api', rateLimiter, [
   campaignRouter,
   orderRouter,
   reportRouter,
+  collectionRouter,
+  couponRouter,
 ]);
 
 app.use(
