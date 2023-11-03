@@ -7,9 +7,7 @@
   },
   "host": "localhost:3000",
   "basePath": "/",
-  "schemes": [
-    "http"
-  ],
+  "schemes": ["http"],
   "paths": {
     "/api/products": {
       "get": {
@@ -299,11 +297,7 @@
     },
     "/api/v1/report/payments": {
       "get": {
-        "tags": [
-          "Report"
-        ],
-        "summary": "Get payments",
-        "description": "Get payments",
+        "description": "",
         "responses": {
           "200": {
             "description": "OK"
@@ -320,6 +314,84 @@
         "responses": {
           "200": {
             "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/collection": {
+      "get": {
+        "description": "查看使用者收藏的產品",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "data": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "number",
+                      "example": 123
+                    },
+                    "user_id": {
+                      "type": "number",
+                      "example": 456
+                    },
+                    "products": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "number",
+                            "example": 789
+                          },
+                          "title": {
+                            "type": "string",
+                            "example": "Product Title"
+                          },
+                          "image": {
+                            "type": "string",
+                            "format": "url",
+                            "example": "https://example.com/product-image.jpg"
+                          }
+                        }
+                      },
+                      "example": [
+                        {
+                          "id": 101,
+                          "title": "Product 1",
+                          "image": "https://example.com/product1.jpg"
+                        },
+                        {
+                          "id": 102,
+                          "title": "Product 2",
+                          "image": "https://example.com/product2.jpg"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      },
+      "post": {
+        "description": "儲存或刪除使用者收藏的產品",
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
           },
           "500": {
             "description": "Internal Server Error"
