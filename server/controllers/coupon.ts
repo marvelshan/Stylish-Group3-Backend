@@ -1,4 +1,6 @@
-import { Request, Response } from 'express';
+import { Request, Response } from "express";
+import * as couponModel from "../models/couponAdmin.js";
+import { z } from "zod";
 
 export async function getCoupons(req: Request, res: Response) {
   /**
@@ -12,16 +14,16 @@ export async function getCoupons(req: Request, res: Response) {
     data: [
       {
         couponId: 123,
-        couponType: '折扣',
-        couponTitle: '20% Off',
-        couponExpiredDate: '2023-12-31',
+        couponType: "折扣",
+        couponTitle: "20% Off",
+        couponExpiredDate: "2023-12-31",
         couponAmount: 20,
       },
       {
         couponId: 394,
-        couponType: '折扣',
-        couponTitle: 'Summer Sale',
-        couponExpiredDate: '2023-12-31',
+        couponType: "折扣",
+        couponTitle: "Summer Sale",
+        couponExpiredDate: "2023-12-31",
         couponAmount: 20,
       },
     ],
@@ -40,16 +42,16 @@ export async function getUserCoupons(req: Request, res: Response) {
     data: [
       {
         couponId: 123,
-        couponType: '折扣',
-        couponTitle: 'sale',
-        couponExpiredDate: '2023-12-31',
+        couponType: "折扣",
+        couponTitle: "sale",
+        couponExpiredDate: "2023-12-31",
         isUsed: false,
       },
       {
         couponId: 234,
-        couponType: '免運',
-        couponTitle: 'sale',
-        couponExpiredDate: '2023-12-31',
+        couponType: "免運",
+        couponTitle: "sale",
+        couponExpiredDate: "2023-12-31",
         isUsed: false,
       },
     ],
@@ -68,16 +70,16 @@ export async function getUserInvalidCoupons(req: Request, res: Response) {
     data: [
       {
         couponId: 123,
-        title: 'sale',
-        couponType: '折扣',
-        couponExpiredDate: '2023-12-31',
+        title: "sale",
+        couponType: "折扣",
+        couponExpiredDate: "2023-12-31",
         isUsed: true,
       },
       {
         couponId: 123,
-        title: 'summer sale',
-        couponType: '免運',
-        couponExpiredDate: '2023-12-31',
+        title: "summer sale",
+        couponType: "免運",
+        couponExpiredDate: "2023-12-31",
         isUsed: false,
       },
     ],
@@ -92,10 +94,25 @@ export async function addCoupon(req: Request, res: Response) {
     schema: { $ref: '#/definitions/AddCouponSuccess' }
   }
    */
-  return res.json({
-    success: true,
-    message: '優惠券新增成功！',
-  });
+  try {
+    const { type, title, discount, startDate, expiredDate, amount } = req.body;
+    const result = await couponModel.createCoupon(
+      type,
+      title,
+      discount,
+      startDate,
+      expiredDate,
+      amount
+    );
+    if (result) {
+      return res.json({
+        success: true,
+        message: "優惠券新增成功！",
+      });
+    }
+  } catch (error) {
+    res.status(404);
+  }
 }
 
 export async function addCouponToUserCouponWallet(req: Request, res: Response) {
@@ -108,6 +125,6 @@ export async function addCouponToUserCouponWallet(req: Request, res: Response) {
    */
   return res.json({
     success: true,
-    message: '優惠券新增成功！',
+    message: "優惠券新增成功！",
   });
 }
