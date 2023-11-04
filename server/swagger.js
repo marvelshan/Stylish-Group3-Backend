@@ -35,7 +35,7 @@ const doc = {
           couponDiscount: 0.8,
           couponStartDate: '2022-12-31',
           couponExpiredDate: '2023-12-31',
-          couponAmount: 20,
+          couponIsUsed: false,
         },
       ],
     },

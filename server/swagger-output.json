@@ -557,9 +557,9 @@
                 "type": "string",
                 "example": "2023-12-31"
               },
-              "couponAmount": {
-                "type": "number",
-                "example": 20
+              "couponIsUsed": {
+                "type": "boolean",
+                "example": false
               }
             }
           }
