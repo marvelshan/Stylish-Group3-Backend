@@ -3,6 +3,11 @@ import { Request, Response, NextFunction } from 'express';
 // To do
 export async function getCollection(req: Request, res: Response) {
   /*  #swagger.tags = ['Collection']
+      #swagger.parameters['Authorization'] = {
+      in: 'header',
+      description: 'Bearer Token',
+      schema: { $ref: '#/definitions/Token' }
+      }
       #swagger.summary = '取得使用者的收藏商品'
       #swagger.responses[200] = {
         schema: { $ref: '#/definitions/Collections' }
@@ -28,10 +33,15 @@ export async function getCollection(req: Request, res: Response) {
 
 export async function addProductToCollection(req: Request, res: Response) {
   /** #swagger.tags = ['Collection']
+      #swagger.parameters['Authorization'] = {
+      in: 'header',
+      description: 'Bearer Token',
+      schema: { $ref: '#/definitions/Token' }
+      }
       #swagger.summary = '加入或刪除使用者收藏的商品'
-      #swagger.parameters['method'] = {
+      #swagger.parameters['body'] = {
         in: 'body',
-        description: 'create or delete',
+        description: 'method: create or delete',
         required: true,
         schema: { $ref: '#/definitions/CollectionPostMethods' }
       }
