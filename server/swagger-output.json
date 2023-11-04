@@ -5,7 +5,7 @@
     "description": "Stylish co-working project",
     "version": "1.0.0"
   },
-  "host": "35.72.177.254:3000",
+  "host": "undefined:3000",
   "basePath": "/",
   "schemes": [
     "http"
@@ -358,6 +358,11 @@
             "schema": {
               "$ref": "#/definitions/Token"
             }
+          },
+          {
+            "name": "paging",
+            "in": "query",
+            "type": "string"
           }
         ],
         "responses": {
@@ -368,10 +373,10 @@
             }
           },
           "500": {
+            "description": "Internal Server Error",
             "schema": {
               "$ref": "#/definitions/Errors"
-            },
-            "description": "Internal Server Error"
+            }
           }
         }
       },
@@ -406,6 +411,12 @@
             "schema": {
               "$ref": "#/definitions/CollectionSuccess"
             }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
