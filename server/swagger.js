@@ -10,38 +10,46 @@ const doc = {
   },
   host: `${process.env.HOST_NAME}:3000`,
   definitions: {
+    Token: {
+      Authorization: 'Bearer',
+    },
     CollectionPostMethods: {
+      productId: 123,
       method: 'create',
+    },
+    CouponId: {
+      couponId: 123,
     },
     ValidCoupons: {
       data: [
         {
-          couponId: 123,
-          couponType: '折扣',
-          couponTitle: '20% Off',
-          couponDiscount: 0.8,
-          couponStartDate: '2022-12-31',
-          couponExpiredDate: '2023-12-31',
-          couponAmount: 20,
+          id: 123,
+          type: '折扣',
+          title: 'Summer Sale',
+          discount: 20,
+          startDate: '2023-12-17T03:24:00',
+          expiredDate: '2023-12-17T03:24:00',
+          amount: 20,
         },
       ],
     },
     UserCoupons: {
       data: [
         {
-          couponId: 123,
-          couponType: '折扣',
-          couponTitle: '20% Off',
-          couponDiscount: 0.8,
-          couponStartDate: '2022-12-31',
-          couponExpiredDate: '2023-12-31',
-          couponIsUsed: false,
+          id: 123,
+          type: '折扣',
+          title: 'Summer Sale',
+          discount: 20,
+          startDate: '2023-12-17T03:24:00',
+          expiredDate: '2023-12-17T03:24:00',
+          isUsed: 0,
         },
       ],
     },
     AddCouponSuccess: {
       success: true,
       message: '優惠券新增成功！',
+      couponId: 123,
     },
     Collections: {
       data: {
