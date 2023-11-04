@@ -10,6 +10,9 @@ const doc = {
   },
   host: `${process.env.HOST_NAME}:3000`,
   definitions: {
+    CollectionPostMethods: {
+      method: 'create',
+    },
     ValidCoupons: {
       data: [
         {
