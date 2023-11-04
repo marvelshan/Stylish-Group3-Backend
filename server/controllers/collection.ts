@@ -29,6 +29,12 @@ export async function getCollection(req: Request, res: Response) {
 export async function addProductToCollection(req: Request, res: Response) {
   /** #swagger.tags = ['Collection']
       #swagger.summary = '加入或刪除使用者收藏的商品'
+      #swagger.parameters['method'] = {
+        in: 'body',
+        description: 'create or delete',
+        required: true,
+        schema: { $ref: '#/definitions/CollectionPostMethods' }
+      }
       #swagger.responses[200] = {
       schema: { $ref: '#/definitions/CollectionSuccess' }
       }

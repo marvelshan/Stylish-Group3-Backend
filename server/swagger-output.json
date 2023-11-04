@@ -7,7 +7,9 @@
   },
   "host": "35.72.177.254:3000",
   "basePath": "/",
-  "schemes": ["http"],
+  "schemes": [
+    "http"
+  ],
   "paths": {
     "/api/products": {
       "get": {
@@ -343,7 +345,9 @@
     },
     "/api/v1/collection": {
       "get": {
-        "tags": ["Collection"],
+        "tags": [
+          "Collection"
+        ],
         "summary": "取得使用者的收藏商品",
         "description": "",
         "responses": {
@@ -362,9 +366,22 @@
         }
       },
       "post": {
-        "tags": ["Collection"],
+        "tags": [
+          "Collection"
+        ],
         "summary": "加入或刪除使用者收藏的商品",
         "description": "",
+        "parameters": [
+          {
+            "name": "method",
+            "in": "body",
+            "description": "create or delete",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CollectionPostMethods"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "OK",
@@ -377,7 +394,9 @@
     },
     "/api/v1/coupons": {
       "get": {
-        "tags": ["User Coupon"],
+        "tags": [
+          "User Coupon"
+        ],
         "summary": "讀取使用者所有可用的優惠券",
         "description": "",
         "responses": {
@@ -390,7 +409,9 @@
         }
       },
       "post": {
-        "tags": ["User Coupon"],
+        "tags": [
+          "User Coupon"
+        ],
         "summary": "將優惠券與使用者帳號綁定",
         "description": "",
         "responses": {
@@ -405,7 +426,9 @@
     },
     "/api/v1/invalid-coupons/": {
       "get": {
-        "tags": ["User Coupon"],
+        "tags": [
+          "User Coupon"
+        ],
         "summary": "讀取使用者使用過或過期的優惠券",
         "description": "",
         "responses": {
@@ -420,7 +443,9 @@
     },
     "/api/marketing/coupons": {
       "get": {
-        "tags": ["Admin Coupon"],
+        "tags": [
+          "Admin Coupon"
+        ],
         "summary": "讀取目前可用的優惠券",
         "description": "",
         "responses": {
@@ -433,7 +458,9 @@
         }
       },
       "post": {
-        "tags": ["Admin Coupon"],
+        "tags": [
+          "Admin Coupon"
+        ],
         "summary": "管理員新增優惠券",
         "description": "",
         "responses": {
@@ -448,6 +475,15 @@
     }
   },
   "definitions": {
+    "CollectionPostMethods": {
+      "type": "object",
+      "properties": {
+        "method": {
+          "type": "string",
+          "example": "create"
+        }
+      }
+    },
     "ValidCoupons": {
       "type": "object",
       "properties": {
@@ -521,9 +557,9 @@
                 "type": "string",
                 "example": "2023-12-31"
               },
-              "couponAmount": {
-                "type": "number",
-                "example": 20
+              "couponIsUsed": {
+                "type": "boolean",
+                "example": false
               }
             }
           }
@@ -652,7 +688,10 @@
                   },
                   "sizes": {
                     "type": "array",
-                    "example": ["S", "M"],
+                    "example": [
+                      "S",
+                      "M"
+                    ],
                     "items": {
                       "type": "string"
                     }
