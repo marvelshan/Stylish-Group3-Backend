@@ -262,6 +262,26 @@
         }
       }
     },
+    "/api/marketing/hots": {
+      "get": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "paging",
+            "in": "query",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
     "/api/order/checkout": {
       "post": {
         "description": "",
@@ -440,9 +460,21 @@
                 "type": "number",
                 "example": 123
               },
+              "couponType": {
+                "type": "string",
+                "example": "折扣"
+              },
               "couponTitle": {
                 "type": "string",
                 "example": "20% Off"
+              },
+              "couponDiscount": {
+                "type": "number",
+                "example": 0.8
+              },
+              "couponStartDate": {
+                "type": "string",
+                "example": "2022-12-31"
               },
               "couponExpiredDate": {
                 "type": "string",
@@ -469,17 +501,29 @@
                 "type": "number",
                 "example": 123
               },
+              "couponType": {
+                "type": "string",
+                "example": "折扣"
+              },
               "couponTitle": {
                 "type": "string",
-                "example": "sale"
+                "example": "20% Off"
+              },
+              "couponDiscount": {
+                "type": "number",
+                "example": 0.8
+              },
+              "couponStartDate": {
+                "type": "string",
+                "example": "2022-12-31"
               },
               "couponExpiredDate": {
                 "type": "string",
                 "example": "2023-12-31"
               },
-              "isUsed": {
-                "type": "boolean",
-                "example": false
+              "couponAmount": {
+                "type": "number",
+                "example": 20
               }
             }
           }
