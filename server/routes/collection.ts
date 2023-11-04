@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { Router } from 'express';
 import {
   addProductToCollection,
