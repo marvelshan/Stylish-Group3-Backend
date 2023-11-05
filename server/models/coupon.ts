@@ -1,5 +1,5 @@
 import pool from './databasePool.js';
-import { date, z } from 'zod';
+import { z } from 'zod';
 import { ResultSetHeader } from 'mysql2';
 
 /* coupons table
@@ -29,7 +29,13 @@ function instanceOfSetHeader(object: any): object is ResultSetHeader {
   return 'insertId' in object;
 }
 
-export const CouponSchema = z.object({
+export const idSchema = z.array(
+  z.object({
+    id: z.number(),
+  }),
+);
+
+export const UserCouponSchema = z.object({
   id: z.number(),
   type: z.string(),
   title: z.string(),
@@ -38,6 +44,33 @@ export const CouponSchema = z.object({
   expiredDate: z.date(),
   isUsed: z.number(),
 });
+
+export const CouponSchema = z.object({
+  id: z.number(),
+  type: z.string(),
+  title: z.string(),
+  discount: z.any(),
+  startDate: z.date(),
+  expiredDate: z.date(),
+  amount: z.number(),
+});
+
+export async function selectAvailableCoupons() {
+  const results = await pool.query(
+    ` SELECT c.id,
+      c.type,
+      c.title,
+      c.discount,
+      c.start_date AS startDate,
+      c.expiry_date AS expiredDate,
+      c.amount
+      FROM coupons c 
+      WHERE c.expiry_date > ?`,
+    [new Date()],
+  );
+  const result = z.array(CouponSchema).parse(results[0]);
+  return result;
+}
 
 export async function selectUserCoupons(userId: number) {
   const results = await pool.query(
@@ -53,8 +86,27 @@ export async function selectUserCoupons(userId: number) {
       WHERE user_id = ?`,
     [userId],
   );
-  const result = z.array(CouponSchema).parse(results[0]);
-  return result[0];
+  const result = z.array(UserCouponSchema).parse(results[0]);
+  return result;
+}
+
+export async function selectUserValidCoupons(userId: number) {
+  const today = new Date();
+  const results = await pool.query(
+    ` SELECT c.id,
+    c.type,
+    c.title,
+    c.discount,
+    c.start_date AS startDate,
+    c.expiry_date AS expiredDate,
+    uc.is_used AS isUsed
+    FROM users_coupons uc
+    LEFT JOIN coupons c ON uc.coupon_id = c.id
+    WHERE user_id = ? AND expiry_date > ? AND is_used = 0`,
+    [userId, today],
+  );
+  const result = z.array(UserCouponSchema).parse(results[0]);
+  return result;
 }
 
 export async function selectUserInvalidCoupons(userId: number) {
@@ -72,8 +124,17 @@ export async function selectUserInvalidCoupons(userId: number) {
     WHERE user_id = ? AND (expiry_date < ? OR is_used = 1)`,
     [userId, today],
   );
-  const result = z.array(CouponSchema).parse(results[0]);
-  return result[0];
+  const result = z.array(UserCouponSchema).parse(results[0]);
+  return result;
+}
+
+export async function checkIfUserHasCoupon(userId: number, couponId: number) {
+  const results = await pool.query(
+    `SELECT id FROM users_coupons WHERE user_id = ? AND coupon_id = ?`,
+    [userId, couponId],
+  );
+  const result = idSchema.parse(results[0]);
+  return result;
 }
 
 export async function insertCouponIntoUserCouponWallet(
@@ -84,6 +145,9 @@ export async function insertCouponIntoUserCouponWallet(
     `INSERT INTO users_coupons (user_id, coupon_id, is_used) VALUES (?, ?, 0)`,
     [userId, couponId],
   );
+  await pool.query(`UPDATE coupons SET amount = amount - 1 WHERE id = ?`, [
+    couponId,
+  ]);
   if (Array.isArray(results) && instanceOfSetHeader(results[0])) {
     return results[0].insertId;
   }
