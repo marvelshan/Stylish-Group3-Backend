@@ -138,7 +138,7 @@ export async function countProducts({
       : ""
   }
   ${typeof keyword === "string" ? `WHERE title LIKE ?` : ""}
-  ${`WHERE id IN (${productIds})`}
+  ${productIds ? `WHERE id IN (${productIds})` : ""}
 `,
     [`%${keyword}%`]
   );

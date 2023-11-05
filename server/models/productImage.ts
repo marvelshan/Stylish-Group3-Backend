@@ -81,6 +81,8 @@ export async function getProductImages(productIds: number[]) {
   return productImages;
 }
 
+const BASE_URL = process.env.BASE_URL;
+
 export function groupImages(productImages: ProductImage[]) {
   const result = productImages.reduce(function (
     obj: {
@@ -95,10 +97,10 @@ export function groupImages(productImages: ProductImage[]) {
       obj[image.product_id] = { main_image: "", images: [] };
     }
     if (image.field_name === "main_image") {
-      obj[image.product_id].main_image = image.path;
+      obj[image.product_id].main_image = `${BASE_URL}${image.path}`;
     }
     if (image.field_name === "images") {
-      obj[image.product_id].images.push(image.path);
+      obj[image.product_id].images.push(`${BASE_URL}${image.path}`);
     }
     return obj;
   }, {});
