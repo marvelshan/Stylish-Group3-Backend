@@ -1,15 +1,15 @@
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
-import { nanoid } from 'nanoid';
-import { NextFunction, Request, Response } from 'express';
-import { fileTypeFromBuffer } from 'file-type';
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
+import { nanoid } from "nanoid";
+import { NextFunction, Request, Response } from "express";
+import { fileTypeFromBuffer } from "file-type";
 
-import * as productModel from '../models/product.js';
-import * as productImageModel from '../models/productImage.js';
-import * as productVariantModel from '../models/productVariant.js';
+import * as productModel from "../models/product.js";
+import * as productImageModel from "../models/productImage.js";
+import * as productVariantModel from "../models/productVariant.js";
 
-const HOTS_TITLE = '冬季新品搶先看';
+const HOTS_TITLE = "冬季新品搶先看";
 
 function mapId<Item extends { id: number }>(item: Item) {
   return item.id;
@@ -20,7 +20,7 @@ function mapImages(imagesObj: {
 }) {
   return <Product extends { id: number }>(product: Product) => ({
     ...product,
-    main_image: `${imagesObj[product.id]?.main_image}` ?? '',
+    main_image: `${imagesObj[product.id]?.main_image}` ?? "",
     images: imagesObj[product.id]?.images?.map?.((image) => `${image}`) ?? [],
   });
 }
@@ -44,7 +44,7 @@ function mapVariants(variantsObj: {
       ([key, value]) => ({
         code: key,
         name: value,
-      }),
+      })
     ),
   });
 }
@@ -134,7 +134,7 @@ export async function getProduct(req: Request, res: Response) {
       res.status(500).json({ errors: err.message });
       return;
     }
-    return res.status(500).json({ errors: 'get products failed' });
+    return res.status(500).json({ errors: "get products failed" });
   }
 }
 
@@ -142,7 +142,7 @@ export async function searchProducts(req: Request, res: Response) {
   try {
     const paging = Number(req.query.paging) || 0;
     const keyword =
-      typeof req.query.keyword === 'string' ? req.query.keyword : '';
+      typeof req.query.keyword === "string" ? req.query.keyword : "";
     const [productsData, productsCount] = await Promise.all([
       productModel.searchProducts({ paging, keyword }),
       productModel.countProducts({ keyword }),
@@ -169,7 +169,7 @@ export async function searchProducts(req: Request, res: Response) {
       res.status(500).json({ errors: err.message });
       return;
     }
-    return res.status(500).json({ errors: 'search products failed' });
+    return res.status(500).json({ errors: "search products failed" });
   }
 }
 
@@ -181,34 +181,36 @@ function generateImages(files: { [fieldname: string]: Express.Multer.File[] }) {
       }
       return acc;
     },
-    [],
+    []
   );
   return images;
 }
 
-function isFilesObject(object: any): object is {
+function isFilesObject(
+  object: any
+): object is {
   [fieldname: string]: Express.Multer.File[];
 } {
   return (
-    typeof object === 'object' && Object.values(object).every(Array.isArray)
+    typeof object === "object" && Object.values(object).every(Array.isArray)
   );
 }
 
 export async function checkFileType(
   req: Request,
   res: Response,
-  next: NextFunction,
+  next: NextFunction
 ) {
   if (isFilesObject(req.files)) {
     const images = await Promise.all(
       generateImages(req.files).map(async (file) => {
         const fileType = await fileTypeFromBuffer(file.buffer);
         return { ...file, ...fileType };
-      }),
+      })
     );
     images.forEach((image) => {
       if (image.mime !== image.mimetype) {
-        throw new Error('fake type');
+        throw new Error("fake type");
       }
     });
     res.locals.images = images;
@@ -219,7 +221,7 @@ export async function checkFileType(
 export async function saveImagesToDisk(
   req: Request,
   res: Response,
-  next: NextFunction,
+  next: NextFunction
 ) {
   try {
     if (Array.isArray(res.locals.images) && res.locals.images.length > 0) {
@@ -232,7 +234,7 @@ export async function saveImagesToDisk(
               const filename = `${nanoid(12)}.${image.ext}`;
               const imagePath = path.join(
                 __dirname,
-                `../../uploads/${filename}`,
+                `../../uploads/${filename}`
               );
               fs.writeFile(imagePath, image.buffer, (err) => {
                 if (err) {
@@ -240,8 +242,8 @@ export async function saveImagesToDisk(
                 }
                 resolve({ ...image, filename, path: `/uploads/${filename}` });
               });
-            }),
-        ),
+            })
+        )
       );
       res.locals.images = images;
     }
@@ -252,15 +254,15 @@ export async function saveImagesToDisk(
       res.status(500).json({ errors: err.message });
       return;
     }
-    return res.status(500).json({ errors: 'save images failed' });
+    return res.status(500).json({ errors: "save images failed" });
   }
 }
 
 export async function createProduct(req: Request, res: Response) {
   try {
     const productId = await productModel.createProduct(req.body);
-    if (typeof productId !== 'number') {
-      throw new Error('create product failed');
+    if (typeof productId !== "number") {
+      throw new Error("create product failed");
     }
     if (Array.isArray(res.locals.images) && res.locals.images.length > 0) {
       const productImageData = res.locals.images.map((image) => {
@@ -271,7 +273,7 @@ export async function createProduct(req: Request, res: Response) {
       });
       productImageModel.createProductImages(productImageData);
     }
-    if (typeof req.body.color === 'string' && req.body.color.length > 0) {
+    if (typeof req.body.color === "string" && req.body.color.length > 0) {
       await productVariantModel.createProductVariants([
         {
           productId,
@@ -300,6 +302,6 @@ export async function createProduct(req: Request, res: Response) {
       res.status(500).json({ errors: err.message });
       return;
     }
-    res.status(500).json({ errors: 'create product failed' });
+    res.status(500).json({ errors: "create product failed" });
   }
 }

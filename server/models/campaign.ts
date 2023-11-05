@@ -22,6 +22,8 @@ export const CampaignSchema = z.object({
   picture: z.string(),
 });
 
+export type Campaign = z.infer<typeof CampaignSchema>;
+
 export async function getCampaigns() {
   const results = await pool.query(
     `SELECT id, product_id, story, picture FROM campaigns;`

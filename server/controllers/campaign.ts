@@ -5,21 +5,30 @@ import * as campaignModel from "../models/campaign.js";
 import { isProductExist } from "../models/product.js";
 
 const CACHE_KEY = cache.getCampaignKey();
+const BASE_URL = process.env.BASE_URL;
 
 export async function getCampaigns(req: Request, res: Response) {
   try {
     const cachedCampaigns = await cache.get(CACHE_KEY);
     if (cachedCampaigns) {
-      const campaigns = z
+      const campaigns: campaignModel.Campaign[] = z
         .array(campaignModel.CampaignSchema)
         .parse(JSON.parse(cachedCampaigns));
+
+      campaigns.forEach(
+        (campaign) => (campaign.picture = `${BASE_URL}${campaign.picture}`)
+      );
       res.status(200).json({
         data: campaigns,
       });
       return;
     }
-    const campaigns = await campaignModel.getCampaigns();
+    const campaigns: campaignModel.Campaign[] = await campaignModel.getCampaigns();
     await cache.set(CACHE_KEY, JSON.stringify(campaigns));
+    campaigns.forEach(
+      (campaign) => (campaign.picture = `${BASE_URL}${campaign.picture}`)
+    );
+
     res.status(200).json({
       data: campaigns,
     });
