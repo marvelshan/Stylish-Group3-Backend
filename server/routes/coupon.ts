@@ -18,6 +18,6 @@ router.route("/v1/invalid-coupons/").get(authenticate, getUserInvalidCoupons);
 
 // admin
 router.route("/marketing/coupons").get(authenticate, getCoupons);
-router.route("/marketing/coupons").post(authorization, authenticate, addCoupon);
+router.route("/marketing/coupons").post(authenticate, authorization, addCoupon);
 
 export default router;
