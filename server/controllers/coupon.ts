@@ -1,9 +1,9 @@
-import { Request, Response } from 'express';
+import { Request, Response } from "express";
 import {
   insertCouponIntoUserCouponWallet,
   selectUserCoupons,
   selectUserInvalidCoupons,
-} from '../models/coupon.js';
+} from "../models/coupon.js";
 import * as couponModel from "../models/couponAdmin.js";
 
 export async function getCoupons(req: Request, res: Response) {
@@ -23,7 +23,7 @@ export async function getCoupons(req: Request, res: Response) {
     const result = await couponModel.searchCoupon();
     res.send(result);
   } catch (error) {
-    res.status(404).json({ success: false, message: "讀取優惠券失敗" });
+    res.status(500).json({ success: false, message: "讀取優惠券失敗" });
   }
   return res.json({
     data: [
@@ -68,7 +68,7 @@ export async function getUserCoupons(req: Request, res: Response) {
       res.status(400).json({ errors: err.message });
       return;
     }
-    return res.status(500).json({ errors: 'Internal server error' });
+    return res.status(500).json({ errors: "Internal server error" });
   }
 }
 
@@ -95,7 +95,7 @@ export async function getUserInvalidCoupons(req: Request, res: Response) {
       res.status(400).json({ errors: err.message });
       return;
     }
-    return res.status(500).json({ errors: 'Internal server error' });
+    return res.status(500).json({ errors: "Internal server error" });
   }
 }
 
@@ -155,7 +155,7 @@ export async function addCoupon(req: Request, res: Response) {
       });
     }
   } catch (error) {
-    res.status(404).json({ success: false, message: "新增優惠券失敗" });
+    res.status(500).json({ success: false, message: "新增優惠券失敗" });
   }
 }
 
@@ -191,7 +191,7 @@ export async function addCouponToUserCouponWallet(req: Request, res: Response) {
 
     return res.json({
       success: true,
-      message: '優惠券綁定成功！',
+      message: "優惠券綁定成功！",
       coupon_id: result,
     });
   } catch (err) {
@@ -199,6 +199,6 @@ export async function addCouponToUserCouponWallet(req: Request, res: Response) {
       res.status(400).json({ errors: err.message });
       return;
     }
-    return res.status(500).json({ errors: 'Internal server error' });
+    return res.status(500).json({ errors: "Internal server error" });
   }
 }
