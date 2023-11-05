@@ -57,6 +57,26 @@ export async function getProducts({
   return products;
 }
 
+export async function getProductsCollection({
+  paging = 0,
+  productIds,
+}: {
+  paging?: number;
+  productIds?: number[];
+}) {
+  const results = await pool.query(
+    `
+    SELECT * FROM products
+    WHERE id IN (${productIds})
+    ORDER BY id DESC
+    LIMIT ? OFFSET ?
+  `,
+    [PAGE_COUNT, paging * PAGE_COUNT]
+  );
+  const products = z.array(ProductSchema).parse(results[0]);
+  return products;
+}
+
 export async function getProduct(id: number) {
   const results = await pool.query(
     `
@@ -102,9 +122,11 @@ function instanceOfProductCount(object: any): object is ProductCount {
 export async function countProducts({
   category,
   keyword,
+  productIds,
 }: {
   category?: string;
   keyword?: string;
+  productIds?: number[];
 }) {
   const results = await pool.query(
     `
@@ -116,6 +138,7 @@ export async function countProducts({
       : ""
   }
   ${typeof keyword === "string" ? `WHERE title LIKE ?` : ""}
+  ${`WHERE id IN (${productIds})`}
 `,
     [`%${keyword}%`]
   );
@@ -201,3 +224,15 @@ export async function getProductsByIds(ids: number[]) {
   const products = z.array(PartialProductSchema).parse(results[0]);
   return products;
 }
+
+// export async function getProductsDetailsByIds(ids: number[]) {
+//   const results = await pool.query(
+//     `
+//     SELECT * FROM products
+//     WHERE id IN (?)
+//   `,
+//     [ids]
+//   );
+//   const products = z.array(PartialProductSchema).parse(results[0]);
+//   return products;
+// }
