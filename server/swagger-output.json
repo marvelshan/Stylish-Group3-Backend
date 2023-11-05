@@ -262,6 +262,26 @@
         }
       }
     },
+    "/api/marketing/hots": {
+      "get": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "paging",
+            "in": "query",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
     "/api/order/checkout": {
       "post": {
         "description": "",
@@ -326,6 +346,21 @@
         "tags": ["Collection"],
         "summary": "取得使用者的收藏商品",
         "description": "",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "Bearer Token",
+            "schema": {
+              "$ref": "#/definitions/Token"
+            }
+          },
+          {
+            "name": "paging",
+            "in": "query",
+            "type": "string"
+          }
+        ],
         "responses": {
           "200": {
             "description": "OK",
@@ -334,10 +369,10 @@
             }
           },
           "500": {
+            "description": "Internal Server Error",
             "schema": {
               "$ref": "#/definitions/Errors"
-            },
-            "description": "Internal Server Error"
+            }
           }
         }
       },
@@ -345,12 +380,37 @@
         "tags": ["Collection"],
         "summary": "加入或刪除使用者收藏的商品",
         "description": "",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "Bearer Token",
+            "schema": {
+              "$ref": "#/definitions/Token"
+            }
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "description": "method: create or delete",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CollectionPostMethods"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "OK",
             "schema": {
               "$ref": "#/definitions/CollectionSuccess"
             }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -360,12 +420,28 @@
         "tags": ["User Coupon"],
         "summary": "讀取使用者所有可用的優惠券",
         "description": "",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "Bearer Token",
+            "schema": {
+              "$ref": "#/definitions/Token"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "OK",
             "schema": {
               "$ref": "#/definitions/UserCoupons"
             }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       },
@@ -373,12 +449,37 @@
         "tags": ["User Coupon"],
         "summary": "將優惠券與使用者帳號綁定",
         "description": "",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "Bearer Token",
+            "schema": {
+              "$ref": "#/definitions/Token"
+            }
+          },
+          {
+            "name": "method",
+            "in": "body",
+            "description": "couponId",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CouponId"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "OK",
             "schema": {
               "$ref": "#/definitions/AddCouponSuccess"
             }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -388,12 +489,28 @@
         "tags": ["User Coupon"],
         "summary": "讀取使用者使用過或過期的優惠券",
         "description": "",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "Bearer Token",
+            "schema": {
+              "$ref": "#/definitions/Token"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "OK",
             "schema": {
               "$ref": "#/definitions/UserCoupons"
             }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -403,6 +520,16 @@
         "tags": ["Admin Coupon"],
         "summary": "讀取目前可用的優惠券",
         "description": "",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "Bearer Token",
+            "schema": {
+              "$ref": "#/definitions/Token"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "OK",
@@ -416,6 +543,16 @@
         "tags": ["Admin Coupon"],
         "summary": "管理員新增優惠券",
         "description": "",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "Bearer Token",
+            "schema": {
+              "$ref": "#/definitions/Token"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "OK",
@@ -428,6 +565,37 @@
     }
   },
   "definitions": {
+    "Token": {
+      "type": "object",
+      "properties": {
+        "Authorization": {
+          "type": "string",
+          "example": "Bearer"
+        }
+      }
+    },
+    "CollectionPostMethods": {
+      "type": "object",
+      "properties": {
+        "productId": {
+          "type": "number",
+          "example": 123
+        },
+        "method": {
+          "type": "string",
+          "example": "create"
+        }
+      }
+    },
+    "CouponId": {
+      "type": "object",
+      "properties": {
+        "couponId": {
+          "type": "number",
+          "example": 123
+        }
+      }
+    },
     "ValidCoupons": {
       "type": "object",
       "properties": {
@@ -436,19 +604,31 @@
           "items": {
             "type": "object",
             "properties": {
-              "couponId": {
+              "id": {
                 "type": "number",
                 "example": 123
               },
-              "couponTitle": {
+              "type": {
                 "type": "string",
-                "example": "20% Off"
+                "example": "折扣"
               },
-              "couponExpiredDate": {
+              "title": {
                 "type": "string",
-                "example": "2023-12-31"
+                "example": "Summer Sale"
               },
-              "couponAmount": {
+              "discount": {
+                "type": "number",
+                "example": 20
+              },
+              "startDate": {
+                "type": "string",
+                "example": "2023-12-17T03:24:00"
+              },
+              "expiredDate": {
+                "type": "string",
+                "example": "2023-12-17T03:24:00"
+              },
+              "amount": {
                 "type": "number",
                 "example": 20
               }
@@ -465,21 +645,33 @@
           "items": {
             "type": "object",
             "properties": {
-              "couponId": {
+              "id": {
                 "type": "number",
                 "example": 123
               },
-              "couponTitle": {
+              "type": {
                 "type": "string",
-                "example": "sale"
+                "example": "折扣"
               },
-              "couponExpiredDate": {
+              "title": {
                 "type": "string",
-                "example": "2023-12-31"
+                "example": "Summer Sale"
+              },
+              "discount": {
+                "type": "number",
+                "example": 20
+              },
+              "startDate": {
+                "type": "string",
+                "example": "2023-12-17T03:24:00"
+              },
+              "expiredDate": {
+                "type": "string",
+                "example": "2023-12-17T03:24:00"
               },
               "isUsed": {
-                "type": "boolean",
-                "example": false
+                "type": "number",
+                "example": 0
               }
             }
           }
@@ -496,6 +688,10 @@
         "message": {
           "type": "string",
           "example": "優惠券新增成功！"
+        },
+        "couponId": {
+          "type": "number",
+          "example": 123
         }
       }
     },

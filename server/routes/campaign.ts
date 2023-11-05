@@ -1,21 +1,23 @@
-import { Router } from "express";
+import { Router } from 'express';
 import {
   getCampaigns,
   checkProductExist,
   createCampaign,
-} from "../controllers/campaign.js";
-import { uploadToDisk } from "../middleware/multer.js";
+} from '../controllers/campaign.js';
+import { uploadToDisk } from '../middleware/multer.js';
+import { getHotProducts } from '../controllers/product.js';
 
 const router = Router();
 
-router.route("/marketing/campaigns").get(getCampaigns);
+router.route('/marketing/campaigns').get(getCampaigns);
+router.route('/marketing/hots').get(getHotProducts);
 
 router
-  .route("/marketing/campaigns")
+  .route('/marketing/campaigns')
   .post(
-    uploadToDisk.single("campaign_picture"),
+    uploadToDisk.single('campaign_picture'),
     checkProductExist,
-    createCampaign
+    createCampaign,
   );
 
 export default router;

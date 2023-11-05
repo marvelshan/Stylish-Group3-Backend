@@ -1,12 +1,13 @@
 import { Router } from 'express';
 import {
-  addProductToCollection,
-  getCollection,
-} from '../controllers/collection.js';
+  getCollectionItems,
+  updateCollection,
+} from "../controllers/collection.js";
+import authenticate from "../middleware/authenticate.js";
 
 const router = Router();
 
-router.route('/v1/collection').get(getCollection);
-router.route('/v1/collection').post(addProductToCollection);
+router.route("/v1/collection").get(authenticate, getCollectionItems);
+router.route("/v1/collection").post(authenticate, updateCollection);
 
 export default router;

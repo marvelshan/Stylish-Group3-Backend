@@ -5,15 +5,15 @@ import {
   getCoupons,
   getUserCoupons,
   getUserInvalidCoupons,
-} from "../controllers/coupon.js";
-import authenticate from "../middleware/authenticate.js";
+} from '../controllers/coupon.js';
+import authenticate from '../middleware/authenticate.js';
 
 const router = Router();
 
 // user
-router.route("/v1/coupons").get(getUserCoupons);
-router.route("/v1/coupons").post(addCouponToUserCouponWallet);
-router.route("/v1/invalid-coupons/").get(getUserInvalidCoupons);
+router.route('/v1/coupons').get(authenticate, getUserCoupons);
+router.route('/v1/coupons').post(authenticate, addCouponToUserCouponWallet);
+router.route('/v1/invalid-coupons/').get(authenticate, getUserInvalidCoupons);
 
 // admin
 router.route("/marketing/coupons").get(authenticate, getCoupons);

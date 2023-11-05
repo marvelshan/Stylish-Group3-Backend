@@ -15,6 +15,7 @@ import rateLimiter from './middleware/rateLimiter.js';
 import { errorHandler } from './utils/errorHandler.js';
 import * as fs from 'fs';
 import path from 'path';
+import cors from 'cors';
 
 const app = express();
 const port = 3000;
@@ -22,6 +23,7 @@ const swaggerDocument = JSON.parse(
   fs.readFileSync(`${path.resolve()}/swagger-output.json`).toString(),
 );
 
+app.use(cors());
 app.use(cookieParser());
 
 app.enable('trust proxy');
