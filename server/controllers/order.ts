@@ -1,21 +1,23 @@
-import { NextFunction, Request, Response } from "express";
-import axios from "axios";
-import { Connection } from "mysql2/promise";
-import keyBy from "lodash.keyby";
-import groupBy from "lodash.groupby";
-import flow from "lodash.flow";
-import * as dotenv from "dotenv";
-import pool from "../models/databasePool.js";
-import * as orderModel from "../models/order.js";
-import * as orderRecipientModel from "../models/orderRecipient.js";
-import * as orderDetailModel from "../models/orderDetail.js";
-import { getProductsByIds } from "../models/product.js";
+import { NextFunction, Request, Response } from 'express';
+import axios from 'axios';
+import { Connection } from 'mysql2/promise';
+import keyBy from 'lodash.keyby';
+import groupBy from 'lodash.groupby';
+import flow from 'lodash.flow';
+import * as dotenv from 'dotenv';
+import pool from '../models/databasePool.js';
+import * as orderModel from '../models/order.js';
+import * as orderRecipientModel from '../models/orderRecipient.js';
+import * as orderDetailModel from '../models/orderDetail.js';
+import { getProductsByIds } from '../models/product.js';
 import {
   getProductVariants,
   getVariantsStockWithLock,
   updateVariantsStock,
-} from "../models/productVariant.js";
-import { ValidationError } from "../utils/errorHandler.js";
+} from '../models/productVariant.js';
+import { ValidationError } from '../utils/errorHandler.js';
+import { selectUserCoupon, updateUserCouponIsUsed } from '../models/coupon.js';
+import COUPON_NAME from '../constants/couponName.const.js';
 
 dotenv.config();
 
@@ -52,13 +54,13 @@ async function payByPrime({
   orderNumber: string;
 }) {
   const result = await axios({
-    method: "post",
-    url: "https://sandbox.tappaysdk.com/tpc/payment/pay-by-prime",
+    method: 'post',
+    url: 'https://sandbox.tappaysdk.com/tpc/payment/pay-by-prime',
     headers: {
-      "Content-Type": "application/json",
-      "x-api-key": TAPPAY_PARTNER_KEY,
+      'Content-Type': 'application/json',
+      'x-api-key': TAPPAY_PARTNER_KEY,
     },
-    responseType: "json",
+    responseType: 'json',
     data: {
       prime,
       partner_key: TAPPAY_PARTNER_KEY,
@@ -107,8 +109,8 @@ async function checkProducts(inputList: ProductInput[]): Promise<Product[]> {
     getProductsByIds(productIds),
     getProductVariants(productIds),
   ]);
-  const productsFromServerMap = keyBy(productsFromServer, "id");
-  const variantsFromServerMap = groupBy(variantsFromServer, "product_id");
+  const productsFromServerMap = keyBy(productsFromServer, 'id');
+  const variantsFromServerMap = groupBy(variantsFromServer, 'product_id');
   const checkProductExit = (product: ProductInput) => {
     const serverProduct = productsFromServerMap[product.id];
     if (!serverProduct)
@@ -142,7 +144,7 @@ async function checkProducts(inputList: ProductInput[]): Promise<Product[]> {
     }
   };
   inputList.forEach(
-    flow(checkProductExit, checkProductPriceMatch, checkProductVariant)
+    flow(checkProductExit, checkProductPriceMatch, checkProductVariant),
   );
   return inputList.map((product) => {
     const variants = variantsFromServerMap[product.id];
@@ -177,7 +179,7 @@ async function placeOrder({
   connection: Connection;
 }) {
   const { shipping, payment, subtotal, freight, total } = orderInfo;
-  connection.query("BEGIN");
+  connection.query('BEGIN');
   try {
     const { orderId, orderNumber } = await orderModel.createOrder(
       userId,
@@ -188,16 +190,16 @@ async function placeOrder({
         freight,
         total,
       },
-      connection
+      connection,
     );
     await Promise.all([
       orderRecipientModel.createOrderRecipient(orderId, recipient, connection),
       orderDetailModel.createOrderDetails(orderId, products, connection),
     ]);
-    connection.query("COMMIT");
+    connection.query('COMMIT');
     return { orderId, orderNumber };
   } catch (err) {
-    connection.query("ROLLBACK");
+    connection.query('ROLLBACK');
     throw err;
   }
 }
@@ -220,30 +222,30 @@ async function confirmOrder({
   connection: Connection;
 }) {
   try {
-    connection.query("BEGIN");
+    connection.query('BEGIN');
 
     const variantIds = products.map(({ variantId }) => variantId);
     const variants = await getVariantsStockWithLock(variantIds, connection);
     const variantsMapWithNewStock = products.reduce(function (
       variantsMap: VariantMap,
-      product
+      product,
     ): VariantMap {
       variantsMap[product.variantId].stock -= product.qty;
       return variantsMap;
     },
-    keyBy(variants, "id"));
+    keyBy(variants, 'id'));
 
     if (
       Object.values(variantsMapWithNewStock).some(
-        (variant) => variant.stock < 0
+        (variant) => variant.stock < 0,
       )
     ) {
-      throw new Error("stock not enough!");
+      throw new Error('stock not enough!');
     }
 
     await updateVariantsStock(
       Object.values(variantsMapWithNewStock),
-      connection
+      connection,
     );
 
     await orderModel.transitionStatusFromCreatedToPaid(orderId, connection);
@@ -256,21 +258,49 @@ async function confirmOrder({
       orderNumber,
     });
 
-    connection.query("COMMIT");
+    connection.query('COMMIT');
   } catch (err) {
-    connection.query("ROLLBACK");
+    connection.query('ROLLBACK');
     throw err;
   }
 }
 
 export async function checkout(req: Request, res: Response) {
+  /**
+  #swagger.tags = ['Order']
+  #swagger.summary = '結帳'
+  #swagger.parameters['Authorization'] = {
+  in: 'header',
+  description: 'Bearer Token',
+  schema: { $ref: '#/definitions/Token' }
+  }
+  #swagger.parameters['request'] = {
+  in: 'body',
+  description: 'Request',
+  required: true,
+  schema: { $ref: '#/definitions/CheckoutList' }
+  }
+  #swagger.responses[200] = {
+    schema: { $ref: '#/definitions/CheckoutSuccess' }
+  }
+   */
   const connection = await pool.getConnection();
   try {
     const userId = res.locals.userId;
-    const { prime, order } = req.body;
+    const { prime, order, couponId } = req.body;
     const { shipping, payment, subtotal, freight, total, recipient, list } =
       order;
 
+    const coupon = await selectUserCoupon(userId, couponId);
+    if (coupon.length > 0) {
+      await updateUserCouponIsUsed(userId, couponId);
+    }
+
+    const subtotalWithCoupon = coupon[0].discount
+      ? Math.floor((subtotal * (100 - coupon[0].discount)) / 100)
+      : subtotal;
+    const freightWithCoupon =
+      coupon[0].type === COUPON_NAME.FREE_SHIPPING ? 0 : freight;
     const products = await checkProducts(list);
 
     const { orderId, orderNumber } = await placeOrder({
@@ -278,9 +308,9 @@ export async function checkout(req: Request, res: Response) {
       orderInfo: {
         shipping,
         payment,
-        subtotal,
-        freight,
-        total,
+        subtotal: subtotalWithCoupon,
+        freight: freightWithCoupon,
+        total: subtotalWithCoupon + freightWithCoupon,
       },
       recipient,
       products,
@@ -307,7 +337,7 @@ export async function checkout(req: Request, res: Response) {
       res.status(500).json({ errors: err.message });
       return;
     }
-    res.status(500).json({ errors: "checkout failed" });
+    res.status(500).json({ errors: 'checkout failed' });
   } finally {
     connection.release();
   }

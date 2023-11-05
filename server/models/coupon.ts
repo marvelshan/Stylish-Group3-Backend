@@ -141,15 +141,46 @@ export async function insertCouponIntoUserCouponWallet(
   userId: number,
   couponId: number,
 ) {
+  await pool.query(`UPDATE coupons SET amount = amount - 1 WHERE id = ?`, [
+    couponId,
+  ]);
+
   const results = await pool.query(
     `INSERT INTO users_coupons (user_id, coupon_id, is_used) VALUES (?, ?, 0)`,
     [userId, couponId],
   );
-  await pool.query(`UPDATE coupons SET amount = amount - 1 WHERE id = ?`, [
-    couponId,
-  ]);
   if (Array.isArray(results) && instanceOfSetHeader(results[0])) {
     return results[0].insertId;
   }
   throw new Error('add new coupon failed');
+}
+
+export async function selectUserCoupon(userId: number, couponId: number) {
+  const results = await pool.query(
+    `SELECT c.id,
+    c.type,
+    c.title,
+    c.discount,
+    c.start_date AS startDate,
+    c.expiry_date AS expiredDate,
+    uc.is_used AS isUsed
+    FROM users_coupons uc
+    LEFT JOIN coupons c ON uc.coupon_id = c.id
+    WHERE user_id = ? AND coupon_id = ?`,
+    [userId, couponId],
+  );
+  const result = z.array(UserCouponSchema).parse(results[0]);
+  return result;
+}
+
+export async function updateUserCouponIsUsed(
+  userId: number,
+  coupon_id: number,
+) {
+  const [rows] = await pool.query(
+    `
+    UPDATE users_coupons SET is_used = 1 WHERE user_id = ? AND coupon_id =?
+    `,
+    [userId, coupon_id],
+  );
 }

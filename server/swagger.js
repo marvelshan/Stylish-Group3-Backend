@@ -10,6 +10,42 @@ const doc = {
   },
   host: `${process.env.HOST_NAME}:3000`,
   definitions: {
+    CheckoutSuccess: {
+      data: {
+        number: '4465123465',
+      },
+    },
+    CheckoutList: {
+      prime: 'ccc1491581661f700bcc1cafec673c741f0665ca77550fe828ef38ee1437a2b8',
+      couponId: 123,
+      order: {
+        shipping: 'delivery',
+        payment: 'credit_card',
+        subtotal: 1234,
+        freight: 14,
+        total: 1300,
+        recipient: {
+          name: 'Luke',
+          phone: '0987654321',
+          email: 'luke@gmail.com',
+          address: '市政府站',
+          time: 'morning',
+        },
+        list: [
+          {
+            id: '201807202157',
+            name: '活力花紋長筒牛仔褲',
+            price: 1299,
+            color: {
+              code: 'DDF0FF',
+              name: '淺藍',
+            },
+            size: 'M',
+            qty: 1,
+          },
+        ],
+      },
+    },
     Token: {
       Authorization: 'Bearer',
     },
