@@ -10,6 +10,12 @@ export async function getCoupons(req: Request, res: Response) {
     schema: { $ref: '#/definitions/ValidCoupons' }
   }
    */
+  try {
+    const result = await couponModel.searchCoupon();
+    res.send(result);
+  } catch (error) {
+    res.status(404).json({ success: false, message: "讀取優惠券失敗" });
+  }
   return res.json({
     data: [
       {
@@ -96,6 +102,32 @@ export async function addCoupon(req: Request, res: Response) {
    */
   try {
     const { type, title, discount, startDate, expiredDate, amount } = req.body;
+    if (
+      type === undefined ||
+      title === undefined ||
+      discount === undefined ||
+      startDate === undefined ||
+      expiredDate === undefined ||
+      amount === undefined
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "注意!每格必須添入資料",
+      });
+    }
+    if (
+      typeof type !== "string" ||
+      typeof title !== "string" ||
+      typeof discount !== "number" ||
+      typeof startDate !== "string" ||
+      typeof expiredDate !== "string" ||
+      typeof amount !== "number"
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "注意!資料型別錯誤",
+      });
+    }
     const result = await couponModel.createCoupon(
       type,
       title,
@@ -111,7 +143,7 @@ export async function addCoupon(req: Request, res: Response) {
       });
     }
   } catch (error) {
-    res.status(404);
+    res.status(404).json({ success: false, message: "新增優惠券失敗" });
   }
 }
 

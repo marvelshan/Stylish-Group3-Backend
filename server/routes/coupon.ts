@@ -16,7 +16,7 @@ router.route("/v1/coupons").post(addCouponToUserCouponWallet);
 router.route("/v1/invalid-coupons/").get(getUserInvalidCoupons);
 
 // admin
-router.route("/marketing/coupons").get(getCoupons);
-router.route("/marketing/coupons").post(addCoupon);
+router.route("/marketing/coupons").get(authenticate, getCoupons);
+router.route("/marketing/coupons").post(authenticate, addCoupon);
 
 export default router;

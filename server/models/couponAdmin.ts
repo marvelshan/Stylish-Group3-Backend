@@ -20,3 +20,11 @@ export async function createCoupon(
     console.log(`createcoupon model is error by ${error}`);
   }
 }
+export async function searchCoupon() {
+  try {
+    const results = await pool.query(`SELECT * FROM coupons`);
+    return results[0];
+  } catch (error) {
+    console.log(`searchCoupon model is error by ${error}`);
+  }
+}
