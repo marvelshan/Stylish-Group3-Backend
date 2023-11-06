@@ -131,13 +131,13 @@ export async function addCoupon(req: Request, res: Response) {
   }
    */
   try {
-    const { type, title, discount, startDate, expiredDate, amount } = req.body;
+    const { type, title, discount, start_date, expiry_date, amount } = req.body;
     if (
       type === undefined ||
       title === undefined ||
       discount === undefined ||
-      startDate === undefined ||
-      expiredDate === undefined ||
+      start_date === undefined ||
+      expiry_date === undefined ||
       amount === undefined
     ) {
       return res.status(400).json({
@@ -149,8 +149,8 @@ export async function addCoupon(req: Request, res: Response) {
       typeof type !== "string" ||
       typeof title !== "string" ||
       typeof discount !== "number" ||
-      typeof startDate !== "string" ||
-      typeof expiredDate !== "string" ||
+      typeof start_date !== "string" ||
+      typeof expiry_date !== "string" ||
       typeof amount !== "number"
     ) {
       return res.status(400).json({
@@ -162,9 +162,9 @@ export async function addCoupon(req: Request, res: Response) {
       type,
       title,
       discount,
-      startDate,
-      expiredDate,
-      amount,
+      start_date,
+      expiry_date,
+      amount
     );
     if (result) {
       return res.json({

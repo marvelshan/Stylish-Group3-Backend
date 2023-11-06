@@ -7,9 +7,7 @@
   },
   "host": "35.72.177.254:3000",
   "basePath": "/",
-  "schemes": [
-    "http"
-  ],
+  "schemes": ["http"],
   "paths": {
     "/api/products": {
       "get": {
@@ -286,9 +284,7 @@
     },
     "/api/order/checkout": {
       "post": {
-        "tags": [
-          "Order"
-        ],
+        "tags": ["Order"],
         "summary": "結帳",
         "description": "",
         "parameters": [
@@ -354,9 +350,7 @@
     },
     "/api/v1/collection": {
       "get": {
-        "tags": [
-          "Collection"
-        ],
+        "tags": ["Collection"],
         "summary": "取得使用者的收藏商品",
         "description": "",
         "parameters": [
@@ -393,9 +387,7 @@
         }
       },
       "post": {
-        "tags": [
-          "Collection"
-        ],
+        "tags": ["Collection"],
         "summary": "加入或刪除使用者收藏的商品",
         "description": "",
         "parameters": [
@@ -435,9 +427,7 @@
     },
     "/api/v1/coupons": {
       "get": {
-        "tags": [
-          "User Coupon"
-        ],
+        "tags": ["User Coupon"],
         "summary": "查詢目前可用的優惠券",
         "description": "",
         "responses": {
@@ -450,9 +440,7 @@
         }
       },
       "post": {
-        "tags": [
-          "User Coupon"
-        ],
+        "tags": ["User Coupon"],
         "summary": "將優惠券與使用者帳號綁定",
         "description": "",
         "parameters": [
@@ -492,9 +480,7 @@
     },
     "/api/v1/user-coupons": {
       "get": {
-        "tags": [
-          "User Coupon"
-        ],
+        "tags": ["User Coupon"],
         "summary": "讀取使用者所有的優惠券",
         "description": "",
         "parameters": [
@@ -525,9 +511,7 @@
     },
     "/api/v1/valid-coupons": {
       "get": {
-        "tags": [
-          "User Coupon"
-        ],
+        "tags": ["User Coupon"],
         "summary": "讀取使用者尚未使用且未過期的優惠券",
         "description": "",
         "parameters": [
@@ -558,9 +542,7 @@
     },
     "/api/v1/invalid-coupons": {
       "get": {
-        "tags": [
-          "User Coupon"
-        ],
+        "tags": ["User Coupon"],
         "summary": "讀取使用者使用過或過期的優惠券",
         "description": "",
         "parameters": [
@@ -591,9 +573,7 @@
     },
     "/api/marketing/coupons": {
       "get": {
-        "tags": [
-          "Admin Coupon"
-        ],
+        "tags": ["Admin Coupon"],
         "summary": "讀取目前可用的優惠券",
         "description": "",
         "parameters": [
@@ -619,9 +599,7 @@
         }
       },
       "post": {
-        "tags": [
-          "Admin Coupon"
-        ],
+        "tags": ["Admin Coupon"],
         "summary": "管理員新增優惠券",
         "description": "",
         "parameters": [
@@ -1047,10 +1025,7 @@
                   },
                   "sizes": {
                     "type": "array",
-                    "example": [
-                      "S",
-                      "M"
-                    ],
+                    "example": ["S", "M"],
                     "items": {
                       "type": "string"
                     }
