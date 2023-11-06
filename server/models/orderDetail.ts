@@ -14,7 +14,7 @@ import { Connection } from "mysql2/promise";
 
 interface ProductInput {
   id: number;
-  title: string;
+  name: string;
   variantId: number;
   price: number;
   qty: number;
@@ -23,7 +23,7 @@ interface ProductInput {
 export async function createOrderDetails(
   orderId: number,
   products: ProductInput[],
-  connection: Connection
+  connection: Connection,
 ) {
   await connection.query(
     `
@@ -33,9 +33,9 @@ export async function createOrderDetails(
     `,
     [
       products.map((product) => {
-        const { id: productId, variantId, title, qty, price } = product;
-        return [orderId, productId, variantId, title, qty, price];
+        const { id: productId, variantId, name, qty, price } = product;
+        return [orderId, productId, variantId, name, qty, price];
       }),
-    ]
+    ],
   );
 }

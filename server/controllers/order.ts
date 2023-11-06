@@ -84,7 +84,7 @@ async function payByPrime({
 
 interface ProductInput {
   id: number;
-  title: string;
+  name: string;
   price: number;
   color: { code: string; name: string };
   size: string;
@@ -254,7 +254,7 @@ async function confirmOrder({
       prime,
       recipient,
       amount,
-      details: products[0].title,
+      details: products[0].name,
       orderNumber,
     });
 
