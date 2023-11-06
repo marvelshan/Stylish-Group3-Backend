@@ -5,10 +5,10 @@
     "description": "Stylish co-working project",
     "version": "1.0.0"
   },
-  "host": "35.72.177.254:3000",
+  "host": "ygolonhcet.online",
   "basePath": "/",
   "schemes": [
-    "http"
+    "https"
   ],
   "paths": {
     "/api/products": {
@@ -619,7 +619,9 @@
         }
       },
       "delete": {
-        "tags": ["Admin Coupon"],
+        "tags": [
+          "Admin Coupon"
+        ],
         "summary": "讓目前優惠券變為零",
         "description": "",
         "parameters": [
@@ -646,6 +648,9 @@
             "schema": {
               "$ref": "#/definitions/ValidCoupons"
             }
+          },
+          "400": {
+            "description": "Bad Request"
           },
           "500": {
             "description": "Internal Server Error"

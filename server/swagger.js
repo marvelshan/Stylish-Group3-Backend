@@ -8,7 +8,8 @@ const doc = {
     title: "Stylish Co-work",
     description: "Stylish co-working project",
   },
-  host: `${process.env.HOST_NAME}:3000`,
+  host: `ygolonhcet.online`,
+  schemes: ["https"],
   definitions: {
     CheckoutSuccess: {
       data: {
