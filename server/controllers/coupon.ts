@@ -30,6 +30,40 @@ export async function getCoupons(req: Request, res: Response) {
   }
 }
 
+export async function deleteCoupon(req: Request, res: Response) {
+  /**
+  #swagger.tags = ['Admin Coupon']
+  #swagger.parameters['Authorization'] = {
+  in: 'header',
+  description: 'Bearer Token',
+  schema: { $ref: '#/definitions/Token' }
+  }
+  #swagger.parameters['Request Body'] = {
+  in: 'body',
+  description: 'Request body',
+  schema: { $ref: '#/definitions/CouponId' }
+  }
+  #swagger.summary = '讓目前優惠券變為零'
+  #swagger.responses[200] = {
+    schema: { $ref: '#/definitions/ValidCoupons' }
+  }
+   */
+  try {
+    const { id } = req.body;
+    const isDeleteAdminCoupon = await couponModel.deleteAdminCoupon(id);
+    if (isDeleteAdminCoupon === 1) {
+      res
+        .status(200)
+        .json({ success: true, message: "已成功將優惠券數量更改為零" });
+    } else {
+      res.status(400).json({ success: false, message: "刪除優惠券失敗" });
+    }
+  } catch (error) {
+    console.log(`deleteCoupon is error on ${error}`);
+    res.status(500).json({ success: false, message: "刪除優惠券失敗" });
+  }
+}
+
 export async function getUserCoupons(req: Request, res: Response) {
   /**
   #swagger.tags = ['User Coupon']
@@ -204,7 +238,7 @@ export async function addCouponToUserCouponWallet(req: Request, res: Response) {
    */
   try {
     const { userId } = res.locals;
-    const { couponId } = req.body;
+    const couponId = req.body.id;
 
     const isCouponAlreadyExist = await checkIfUserHasCoupon(userId, couponId);
 

@@ -1,6 +1,7 @@
 import { Router } from "express";
 import {
   addCoupon,
+  deleteCoupon,
   addCouponToUserCouponWallet,
   getAvailableCoupons,
   getCoupons,
@@ -22,6 +23,7 @@ router.route("/v1/invalid-coupons").get(authenticate, getUserInvalidCoupons);
 
 // admin
 router.route("/marketing/coupons").get(authenticate, getCoupons);
+router.route("/marketing/coupons").delete(authenticate, deleteCoupon);
 router
   .route("/marketing/coupons")
   .post(authenticate, authorization("admin"), addCoupon);

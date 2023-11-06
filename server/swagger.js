@@ -54,7 +54,7 @@ const doc = {
       method: "create",
     },
     CouponId: {
-      couponId: 123,
+      id: 12,
     },
     ValidCoupons: {
       data: [
