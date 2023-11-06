@@ -27,7 +27,9 @@ export async function getCollectionItems(userId: Number) {
   );
 
   const collectionItems = z.array(ProductIdSchema).parse(rows);
-  const productIds = collectionItems.map((item: any) => item.product_id);
+  const productIds: number[] = collectionItems.map(
+    (item: any) => item.product_id
+  );
   return productIds;
 }
 

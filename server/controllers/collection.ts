@@ -62,6 +62,11 @@ export async function getCollectionItems(req: Request, res: Response) {
     const userId = res.locals.userId;
     const paging = Number(req.query.paging) || 0;
     const productIds = await collectionModel.getCollectionItems(userId);
+    if (productIds.length === 0) {
+      return res
+        .status(400)
+        .json({ success: false, message: "no collection items" });
+    }
     const [productsData, productsCount] = await Promise.all([
       productModel.getProductsCollection({ paging, productIds }),
       productModel.countProducts({ productIds }),
