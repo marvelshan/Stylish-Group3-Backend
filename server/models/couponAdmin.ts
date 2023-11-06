@@ -5,15 +5,15 @@ export async function createCoupon(
   type: string,
   title: string,
   discount: number,
-  startDate: string,
-  expiredDate: string,
+  start_date: string,
+  expiry_date: string,
   amount: number
 ) {
   try {
     const results = await pool.query(
-      `INSERT INTO coupons (type, title, discount, startDate, expiredDate, amount)
+      `INSERT INTO coupons (type, title, discount, start_date, expiry_date, amount)
       VALUES(?, ?, ?, ?, ?, ?);`,
-      [type, title, discount, startDate, expiredDate, amount]
+      [type, title, discount, start_date, expiry_date, amount]
     );
     return results;
   } catch (error) {

@@ -1,8 +1,9 @@
 import { Request, Response, NextFunction } from "express";
-import { isUserHasRole } from "../models/role.js"
+import { isUserHasRole } from "../models/role.js";
 
 const authorization =
-  (roleName: string) => async (req: Request, res: Response, next: NextFunction) => {
+  (roleName: string) =>
+  async (req: Request, res: Response, next: NextFunction) => {
     try {
       const userId = res.locals.userId;
       if (await isUserHasRole(userId, roleName)) {
