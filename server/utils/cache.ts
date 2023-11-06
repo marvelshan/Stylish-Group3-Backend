@@ -1,4 +1,4 @@
-import { Redis } from "ioredis";
+import { Redis } from 'ioredis';
 
 export const cache = new Redis({
   port: 6379, // Redis port
@@ -36,5 +36,5 @@ export async function del(key: string) {
 }
 
 export const getCampaignKey = () => {
-  return "campaigns";
+  return 'campaigns';
 };

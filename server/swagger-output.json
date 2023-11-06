@@ -7,7 +7,9 @@
   },
   "host": "35.72.177.254:3000",
   "basePath": "/",
-  "schemes": ["http"],
+  "schemes": [
+    "http"
+  ],
   "paths": {
     "/api/products": {
       "get": {
@@ -284,27 +286,36 @@
     },
     "/api/order/checkout": {
       "post": {
+        "tags": [
+          "Order"
+        ],
+        "summary": "結帳",
         "description": "",
         "parameters": [
           {
-            "name": "body",
-            "in": "body",
+            "name": "Authorization",
+            "in": "header",
+            "description": "Bearer Token",
             "schema": {
-              "type": "object",
-              "properties": {
-                "prime": {
-                  "example": "any"
-                },
-                "order": {
-                  "example": "any"
-                }
-              }
+              "$ref": "#/definitions/Token"
+            }
+          },
+          {
+            "name": "request",
+            "in": "body",
+            "description": "Request",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CheckoutList"
             }
           }
         ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/CheckoutSuccess"
+            }
           },
           "400": {
             "description": "Bad Request"
@@ -343,7 +354,9 @@
     },
     "/api/v1/collection": {
       "get": {
-        "tags": ["Collection"],
+        "tags": [
+          "Collection"
+        ],
         "summary": "取得使用者的收藏商品",
         "description": "",
         "parameters": [
@@ -377,7 +390,9 @@
         }
       },
       "post": {
-        "tags": ["Collection"],
+        "tags": [
+          "Collection"
+        ],
         "summary": "加入或刪除使用者收藏的商品",
         "description": "",
         "parameters": [
@@ -417,36 +432,24 @@
     },
     "/api/v1/coupons": {
       "get": {
-        "tags": ["User Coupon"],
-        "summary": "讀取使用者所有可用的優惠券",
-        "description": "",
-        "parameters": [
-          {
-            "name": "Authorization",
-            "in": "header",
-            "description": "Bearer Token",
-            "schema": {
-              "$ref": "#/definitions/Token"
-            }
-          }
+        "tags": [
+          "User Coupon"
         ],
+        "summary": "查詢目前可用的優惠券",
+        "description": "",
         "responses": {
           "200": {
             "description": "OK",
             "schema": {
-              "$ref": "#/definitions/UserCoupons"
+              "$ref": "#/definitions/ValidCoupons"
             }
-          },
-          "400": {
-            "description": "Bad Request"
-          },
-          "500": {
-            "description": "Internal Server Error"
           }
         }
       },
       "post": {
-        "tags": ["User Coupon"],
+        "tags": [
+          "User Coupon"
+        ],
         "summary": "將優惠券與使用者帳號綁定",
         "description": "",
         "parameters": [
@@ -484,9 +487,77 @@
         }
       }
     },
-    "/api/v1/invalid-coupons/": {
+    "/api/v1/user-coupons": {
       "get": {
-        "tags": ["User Coupon"],
+        "tags": [
+          "User Coupon"
+        ],
+        "summary": "讀取使用者所有的優惠券",
+        "description": "",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "Bearer Token",
+            "schema": {
+              "$ref": "#/definitions/Token"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/UserCoupons"
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/v1/valid-coupons": {
+      "get": {
+        "tags": [
+          "User Coupon"
+        ],
+        "summary": "讀取使用者尚未使用且未過期的優惠券",
+        "description": "",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "Bearer Token",
+            "schema": {
+              "$ref": "#/definitions/Token"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/UserCoupons"
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/v1/invalid-coupons": {
+      "get": {
+        "tags": [
+          "User Coupon"
+        ],
         "summary": "讀取使用者使用過或過期的優惠券",
         "description": "",
         "parameters": [
@@ -517,7 +588,9 @@
     },
     "/api/marketing/coupons": {
       "get": {
-        "tags": ["Admin Coupon"],
+        "tags": [
+          "Admin Coupon"
+        ],
         "summary": "讀取目前可用的優惠券",
         "description": "",
         "parameters": [
@@ -540,7 +613,9 @@
         }
       },
       "post": {
-        "tags": ["Admin Coupon"],
+        "tags": [
+          "Admin Coupon"
+        ],
         "summary": "管理員新增優惠券",
         "description": "",
         "parameters": [
@@ -565,6 +640,124 @@
     }
   },
   "definitions": {
+    "CheckoutSuccess": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "type": "object",
+          "properties": {
+            "number": {
+              "type": "string",
+              "example": "4465123465"
+            }
+          }
+        }
+      }
+    },
+    "CheckoutList": {
+      "type": "object",
+      "properties": {
+        "prime": {
+          "type": "string",
+          "example": "ccc1491581661f700bcc1cafec673c741f0665ca77550fe828ef38ee1437a2b8"
+        },
+        "couponId": {
+          "type": "number",
+          "example": 123
+        },
+        "order": {
+          "type": "object",
+          "properties": {
+            "shipping": {
+              "type": "string",
+              "example": "delivery"
+            },
+            "payment": {
+              "type": "string",
+              "example": "credit_card"
+            },
+            "subtotal": {
+              "type": "number",
+              "example": 1234
+            },
+            "freight": {
+              "type": "number",
+              "example": 14
+            },
+            "total": {
+              "type": "number",
+              "example": 1300
+            },
+            "recipient": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "example": "Luke"
+                },
+                "phone": {
+                  "type": "string",
+                  "example": "0987654321"
+                },
+                "email": {
+                  "type": "string",
+                  "example": "luke@gmail.com"
+                },
+                "address": {
+                  "type": "string",
+                  "example": "市政府站"
+                },
+                "time": {
+                  "type": "string",
+                  "example": "morning"
+                }
+              }
+            },
+            "list": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "example": "201807202157"
+                  },
+                  "name": {
+                    "type": "string",
+                    "example": "活力花紋長筒牛仔褲"
+                  },
+                  "price": {
+                    "type": "number",
+                    "example": 1299
+                  },
+                  "color": {
+                    "type": "object",
+                    "properties": {
+                      "code": {
+                        "type": "string",
+                        "example": "DDF0FF"
+                      },
+                      "name": {
+                        "type": "string",
+                        "example": "淺藍"
+                      }
+                    }
+                  },
+                  "size": {
+                    "type": "string",
+                    "example": "M"
+                  },
+                  "qty": {
+                    "type": "number",
+                    "example": 1
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "Token": {
       "type": "object",
       "properties": {
@@ -804,7 +997,10 @@
                   },
                   "sizes": {
                     "type": "array",
-                    "example": ["S", "M"],
+                    "example": [
+                      "S",
+                      "M"
+                    ],
                     "items": {
                       "type": "string"
                     }

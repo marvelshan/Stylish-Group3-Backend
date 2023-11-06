@@ -1,10 +1,13 @@
-import { Request, Response } from "express";
+import { Request, Response } from 'express';
 import {
+  checkIfUserHasCoupon,
   insertCouponIntoUserCouponWallet,
+  selectAvailableCoupons,
   selectUserCoupons,
   selectUserInvalidCoupons,
-} from "../models/coupon.js";
-import * as couponModel from "../models/couponAdmin.js";
+  selectUserValidCoupons,
+} from '../models/coupon.js';
+import * as couponModel from '../models/couponAdmin.js';
 
 export async function getCoupons(req: Request, res: Response) {
   /**
@@ -23,22 +26,22 @@ export async function getCoupons(req: Request, res: Response) {
     const result = await couponModel.searchCoupon();
     res.send(result);
   } catch (error) {
-    res.status(500).json({ success: false, message: "讀取優惠券失敗" });
+    res.status(500).json({ success: false, message: '讀取優惠券失敗' });
   }
   return res.json({
     data: [
       {
         couponId: 123,
-        couponType: "折扣",
-        couponTitle: "20% Off",
-        couponExpiredDate: "2023-12-31",
+        couponType: '折扣',
+        couponTitle: '20% Off',
+        couponExpiredDate: '2023-12-31',
         couponAmount: 20,
       },
       {
         couponId: 394,
-        couponType: "折扣",
-        couponTitle: "Summer Sale",
-        couponExpiredDate: "2023-12-31",
+        couponType: '折扣',
+        couponTitle: 'Summer Sale',
+        couponExpiredDate: '2023-12-31',
         couponAmount: 20,
       },
     ],
@@ -53,7 +56,7 @@ export async function getUserCoupons(req: Request, res: Response) {
   description: 'Bearer Token',
   schema: { $ref: '#/definitions/Token' }
   }
-  #swagger.summary = '讀取使用者所有可用的優惠券'
+  #swagger.summary = '讀取使用者所有的優惠券'
   #swagger.responses[200] = {
     schema: { $ref: '#/definitions/UserCoupons' }
   }
@@ -68,7 +71,34 @@ export async function getUserCoupons(req: Request, res: Response) {
       res.status(400).json({ errors: err.message });
       return;
     }
-    return res.status(500).json({ errors: "Internal server error" });
+    return res.status(500).json({ errors: 'Internal server error' });
+  }
+}
+
+export async function getUserValidCoupons(req: Request, res: Response) {
+  /**
+  #swagger.tags = ['User Coupon']
+  #swagger.parameters['Authorization'] = {
+  in: 'header',
+  description: 'Bearer Token',
+  schema: { $ref: '#/definitions/Token' }
+  }
+  #swagger.summary = '讀取使用者尚未使用且未過期的優惠券'
+  #swagger.responses[200] = {
+    schema: { $ref: '#/definitions/UserCoupons' }
+  }
+   */
+  try {
+    const userId = res.locals.userId;
+    const result = await selectUserValidCoupons(userId);
+
+    return res.json({ data: result });
+  } catch (err) {
+    if (err instanceof Error) {
+      res.status(400).json({ errors: err.message });
+      return;
+    }
+    return res.status(500).json({ errors: 'Internal server error' });
   }
 }
 
@@ -89,13 +119,13 @@ export async function getUserInvalidCoupons(req: Request, res: Response) {
     const userId = res.locals.userId;
     const result = await selectUserInvalidCoupons(userId);
 
-    return res.json(result);
+    return res.json({ data: result });
   } catch (err) {
     if (err instanceof Error) {
       res.status(400).json({ errors: err.message });
       return;
     }
-    return res.status(500).json({ errors: "Internal server error" });
+    return res.status(500).json({ errors: 'Internal server error' });
   }
 }
 
@@ -124,20 +154,20 @@ export async function addCoupon(req: Request, res: Response) {
     ) {
       return res.status(400).json({
         success: false,
-        message: "注意!每格必須添入資料",
+        message: '注意!每格必須添入資料',
       });
     }
     if (
-      typeof type !== "string" ||
-      typeof title !== "string" ||
-      typeof discount !== "number" ||
-      typeof startDate !== "string" ||
-      typeof expiredDate !== "string" ||
-      typeof amount !== "number"
+      typeof type !== 'string' ||
+      typeof title !== 'string' ||
+      typeof discount !== 'number' ||
+      typeof startDate !== 'string' ||
+      typeof expiredDate !== 'string' ||
+      typeof amount !== 'number'
     ) {
       return res.status(400).json({
         success: false,
-        message: "注意!資料型別錯誤",
+        message: '注意!資料型別錯誤',
       });
     }
     const result = await couponModel.createCoupon(
@@ -146,16 +176,16 @@ export async function addCoupon(req: Request, res: Response) {
       discount,
       startDate,
       expiredDate,
-      amount
+      amount,
     );
     if (result) {
       return res.json({
         success: true,
-        message: "優惠券新增成功！",
+        message: '優惠券新增成功！',
       });
     }
   } catch (error) {
-    res.status(500).json({ success: false, message: "新增優惠券失敗" });
+    res.status(500).json({ success: false, message: '新增優惠券失敗' });
   }
 }
 
@@ -187,18 +217,39 @@ export async function addCouponToUserCouponWallet(req: Request, res: Response) {
   try {
     const { userId } = res.locals;
     const { couponId } = req.body;
-    const result = await insertCouponIntoUserCouponWallet(userId, couponId);
+
+    const isCouponAlreadyExist = await checkIfUserHasCoupon(userId, couponId);
+
+    if (isCouponAlreadyExist.length > 0) {
+      return res.status(400).json({
+        error: '已經領過囉！',
+      });
+    }
+
+    await insertCouponIntoUserCouponWallet(userId, couponId);
 
     return res.json({
       success: true,
-      message: "優惠券綁定成功！",
-      coupon_id: result,
+      message: '優惠券綁定成功！',
+      couponId,
     });
   } catch (err) {
     if (err instanceof Error) {
       res.status(400).json({ errors: err.message });
       return;
     }
-    return res.status(500).json({ errors: "Internal server error" });
+    return res.status(500).json({ errors: 'Internal server error' });
   }
+}
+
+export async function getAvailableCoupons(req: Request, res: Response) {
+  /**
+  #swagger.tags = ['User Coupon']
+  #swagger.summary = '查詢目前可用的優惠券'
+  #swagger.responses[200] = {
+    schema: { $ref: '#/definitions/ValidCoupons' }
+  }
+  */
+  const result = await selectAvailableCoupons();
+  return res.json({ data: result });
 }
