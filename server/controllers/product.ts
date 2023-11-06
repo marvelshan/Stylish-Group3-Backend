@@ -4,10 +4,12 @@ import { fileURLToPath } from "url";
 import { nanoid } from "nanoid";
 import { NextFunction, Request, Response } from "express";
 import { fileTypeFromBuffer } from "file-type";
+import Manticoresearch from "manticoresearch";
 
 import * as productModel from "../models/product.js";
 import * as productImageModel from "../models/productImage.js";
 import * as productVariantModel from "../models/productVariant.js";
+import client from "../constants/manticore.const.js";
 
 const HOTS_TITLE = "冬季新品搶先看";
 
@@ -172,6 +174,24 @@ export async function searchProducts(req: Request, res: Response) {
     return res.status(500).json({ errors: "search products failed" });
   }
 }
+
+// export async function productAutoCompleteSearch(req: Request, res: Response) {
+//   try {
+//     const keyword =
+//       typeof req.query.keyword === "string" ? req.query.keyword : "";
+//     var searchRequest = new Manticoresearch.SearchRequest();
+//     searchRequest.index = "products";
+//     searchRequest.limit = 10;
+//     searchRequest.fulltext_filter = new Manticoresearch.MatchFilter(
+//       `${keyword}*`,
+//       "title"
+//     );
+//     var res = await searchApi.search(searchRequest);
+//     console.log(JSON.stringify(res, null, 4));
+//   } catch (error) {
+//     console.error("Failed to auto complete the search: ", error);
+//   }
+// }
 
 function generateImages(files: { [fieldname: string]: Express.Multer.File[] }) {
   const images = Object.values(files).reduce(
