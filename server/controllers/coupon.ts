@@ -24,7 +24,7 @@ export async function getCoupons(req: Request, res: Response) {
    */
   try {
     const result = await couponModel.searchCoupon();
-    res.send(result);
+    res.status(200).json({ data: result });
   } catch (error) {
     res.status(500).json({ success: false, message: "讀取優惠券失敗" });
   }
@@ -119,6 +119,12 @@ export async function addCoupon(req: Request, res: Response) {
   description: 'Bearer Token',
   schema: { $ref: '#/definitions/Token' }
   }
+  #swagger.parameters['body'] = {
+  in: 'body',
+  required: true,
+  description: '優惠券',
+  schema: { $ref: '#/definitions/AddCoupon' } 
+  }
   #swagger.summary = '管理員新增優惠券'
   #swagger.responses[200] = {
     schema: { $ref: '#/definitions/AddCouponSuccess' }
@@ -158,7 +164,7 @@ export async function addCoupon(req: Request, res: Response) {
       discount,
       startDate,
       expiredDate,
-      amount
+      amount,
     );
     if (result) {
       return res.json({

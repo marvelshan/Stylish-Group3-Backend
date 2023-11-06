@@ -381,6 +381,9 @@
               "$ref": "#/definitions/Collections"
             }
           },
+          "400": {
+            "description": "Bad Request"
+          },
           "500": {
             "description": "Internal Server Error",
             "schema": {
@@ -609,6 +612,9 @@
             "schema": {
               "$ref": "#/definitions/ValidCoupons"
             }
+          },
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       },
@@ -626,6 +632,15 @@
             "schema": {
               "$ref": "#/definitions/Token"
             }
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "description": "優惠券",
+            "schema": {
+              "$ref": "#/definitions/AddCoupon"
+            }
           }
         ],
         "responses": {
@@ -634,6 +649,12 @@
             "schema": {
               "$ref": "#/definitions/AddCouponSuccess"
             }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -868,6 +889,35 @@
               }
             }
           }
+        }
+      }
+    },
+    "AddCoupon": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "example": "折扣"
+        },
+        "title": {
+          "type": "string",
+          "example": "20"
+        },
+        "discount": {
+          "type": "number",
+          "example": 70
+        },
+        "start_date": {
+          "type": "string",
+          "example": "2023-12-17T03:24:00"
+        },
+        "expiry_date": {
+          "type": "string",
+          "example": "2023-12-17T12:24:00"
+        },
+        "amount": {
+          "type": "number",
+          "example": 2000
         }
       }
     },
