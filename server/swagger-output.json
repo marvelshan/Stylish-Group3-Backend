@@ -598,6 +598,40 @@
           }
         }
       },
+      "delete": {
+        "tags": ["Admin Coupon"],
+        "summary": "讓目前優惠券變為零",
+        "description": "",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "Bearer Token",
+            "schema": {
+              "$ref": "#/definitions/Token"
+            }
+          },
+          {
+            "name": "Request Body",
+            "in": "body",
+            "description": "Request body",
+            "schema": {
+              "$ref": "#/definitions/CouponId"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/ValidCoupons"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      },
       "post": {
         "tags": ["Admin Coupon"],
         "summary": "管理員新增優惠券",
@@ -782,9 +816,9 @@
     "CouponId": {
       "type": "object",
       "properties": {
-        "couponId": {
+        "id": {
           "type": "number",
-          "example": 123
+          "example": 12
         }
       }
     },
