@@ -261,9 +261,9 @@ export async function addCouponToUserCouponWallet(req: Request, res: Response) {
     if (isCouponAlreadyExist.length > 0)
       throw new ValidationError("已經領過囉！");
 
-    const multi = cache.multi();
-    multi.watch(couponId);
+    cache.watch(couponId);
     const cachedCoupon = await get(couponId);
+    const multi = cache.multi();
 
     if (cachedCoupon) {
       const coupon = JSON.parse(cachedCoupon);
@@ -273,7 +273,7 @@ export async function addCouponToUserCouponWallet(req: Request, res: Response) {
       }
 
       if (coupon.amount === 0) {
-        set(couponId, JSON.stringify({ amount: -1 }));
+        multi.set(couponId, JSON.stringify({ amount: -1 }));
         setDBCouponToZero(couponId);
         throw new ValidationError("優惠券已經被搶完了！");
       }
