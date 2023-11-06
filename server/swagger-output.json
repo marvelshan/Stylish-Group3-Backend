@@ -5,7 +5,7 @@
     "description": "Stylish co-working project",
     "version": "1.0.0"
   },
-  "host": "localhost:3000",
+  "host": "35.72.177.254:3000",
   "basePath": "/",
   "schemes": ["http"],
   "paths": {
