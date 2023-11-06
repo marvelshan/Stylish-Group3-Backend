@@ -3,11 +3,16 @@ import {
   checkIfUserHasCoupon,
   insertCouponIntoUserCouponWallet,
   selectAvailableCoupons,
+  selectCoupon,
   selectUserCoupons,
   selectUserInvalidCoupons,
   selectUserValidCoupons,
+  setDBCouponToAmountMinusOne,
+  setDBCouponToZero,
 } from "../models/coupon.js";
 import * as couponModel from "../models/couponAdmin.js";
+import { cache, get, set } from "../utils/cache.js";
+import { ValidationError } from "../utils/errorHandler.js";
 
 export async function getCoupons(req: Request, res: Response) {
   /**
@@ -198,7 +203,19 @@ export async function addCoupon(req: Request, res: Response) {
       discount,
       start_date,
       expiry_date,
-      amount
+      amount,
+    );
+    set(
+      result.toString(),
+      JSON.stringify({
+        id: result,
+        type,
+        title,
+        discount,
+        start_date,
+        expiry_date,
+        amount,
+      }),
     );
     if (result) {
       return res.json({
@@ -241,13 +258,60 @@ export async function addCouponToUserCouponWallet(req: Request, res: Response) {
     const couponId = req.body.id;
 
     const isCouponAlreadyExist = await checkIfUserHasCoupon(userId, couponId);
+    if (isCouponAlreadyExist.length > 0)
+      throw new ValidationError("已經領過囉！");
 
-    if (isCouponAlreadyExist.length > 0) {
-      return res.status(400).json({
-        error: "已經領過囉！",
-      });
+    const multi = cache.multi();
+    multi.watch(couponId);
+    const cachedCoupon = await get(couponId);
+
+    if (cachedCoupon) {
+      const coupon = JSON.parse(cachedCoupon);
+
+      if (coupon.amount < 0) {
+        throw new ValidationError("優惠券已經被搶完了！");
+      }
+
+      if (coupon.amount === 0) {
+        set(couponId, JSON.stringify({ amount: -1 }));
+        setDBCouponToZero(couponId);
+        throw new ValidationError("優惠券已經被搶完了！");
+      }
+
+      const amount = coupon.amount - 1;
+      multi.set(
+        couponId,
+        JSON.stringify({
+          amount,
+        }),
+      );
+
+      const execResult = await multi.exec();
+
+      if (execResult) {
+        console.log(amount);
+        await insertCouponIntoUserCouponWallet(userId, couponId);
+
+        return res.json({
+          success: true,
+          message: "優惠券綁定成功！",
+          couponId,
+        });
+      } else {
+        multi.unwatch();
+        throw new ValidationError("活動太熱烈了!請再試一次");
+      }
     }
+    multi.unwatch();
+    // If key is not in cache, fetch from DB
+    const dbCoupon = await selectCoupon(couponId);
 
+    set(couponId, JSON.stringify({ amount: dbCoupon[0].amount - 1 }));
+
+    if (dbCoupon[0].amount === 0)
+      throw new ValidationError("優惠券已經用完了！");
+
+    await setDBCouponToAmountMinusOne(couponId);
     await insertCouponIntoUserCouponWallet(userId, couponId);
 
     return res.json({
@@ -257,8 +321,7 @@ export async function addCouponToUserCouponWallet(req: Request, res: Response) {
     });
   } catch (err) {
     if (err instanceof Error) {
-      res.status(400).json({ errors: err.message });
-      return;
+      return res.status(400).json({ errors: err.message });
     }
     return res.status(500).json({ errors: "Internal server error" });
   }

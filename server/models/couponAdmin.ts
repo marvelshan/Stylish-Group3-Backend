@@ -7,18 +7,14 @@ export async function createCoupon(
   discount: number,
   start_date: string,
   expiry_date: string,
-  amount: number
+  amount: number,
 ) {
-  try {
-    const results = await pool.query(
-      `INSERT INTO coupons (type, title, discount, start_date, expiry_date, amount)
+  const results = await pool.query<ResultSetHeader>(
+    `INSERT INTO coupons (type, title, discount, start_date, expiry_date, amount)
       VALUES(?, ?, ?, ?, ?, ?);`,
-      [type, title, discount, start_date, expiry_date, amount]
-    );
-    return results;
-  } catch (error) {
-    console.log(`createcoupon model is error by ${error}`);
-  }
+    [type, title, discount, start_date, expiry_date, amount],
+  );
+  return results[0].insertId;
 }
 
 export async function searchCoupon() {
@@ -33,7 +29,7 @@ export async function searchCoupon() {
 export async function deleteAdminCoupon(id: number) {
   const results = await pool.query<ResultSetHeader>(
     `UPDATE coupons SET amount = 0 WHERE id = ? `,
-    [id]
+    [id],
   );
   return results[0].affectedRows;
 }
