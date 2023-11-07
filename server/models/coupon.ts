@@ -202,7 +202,7 @@ export async function updateUserCouponIsUsed(
   userId: number,
   coupon_id: number,
 ) {
-  const [rows] = await pool.query(
+  await pool.query(
     `
     UPDATE users_coupons SET is_used = 1 WHERE user_id = ? AND coupon_id =?
     `,

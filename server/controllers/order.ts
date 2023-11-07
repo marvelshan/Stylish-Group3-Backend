@@ -292,9 +292,6 @@ export async function checkout(req: Request, res: Response) {
       order;
 
     const coupon = await selectUserCoupon(userId, couponId);
-    if (coupon.length > 0) {
-      await updateUserCouponIsUsed(userId, couponId);
-    }
 
     const products = await checkProducts(list);
     if (
@@ -310,6 +307,10 @@ export async function checkout(req: Request, res: Response) {
       subtotal + freight !== total
     ) {
       throw new ValidationError("Price not match");
+    }
+
+    if (coupon.length > 0) {
+      await updateUserCouponIsUsed(userId, couponId);
     }
 
     const { orderId, orderNumber } = await placeOrder({
