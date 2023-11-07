@@ -1,6 +1,6 @@
-import pool from './databasePool.js';
-import { z } from 'zod';
-import { ResultSetHeader } from 'mysql2';
+import pool from "./databasePool.js";
+import { z } from "zod";
+import { ResultSetHeader } from "mysql2";
 
 /* coupons table
   `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -26,7 +26,7 @@ import { ResultSetHeader } from 'mysql2';
 **/
 
 function instanceOfSetHeader(object: any): object is ResultSetHeader {
-  return 'insertId' in object;
+  return "insertId" in object;
 }
 
 export const idSchema = z.array(
@@ -137,14 +137,39 @@ export async function checkIfUserHasCoupon(userId: number, couponId: number) {
   return result;
 }
 
+export async function setDBCouponToZero(couponId: number) {
+  await pool.query(`UPDATE coupons SET amount = 0 WHERE id = ?`, [couponId]);
+  return null;
+}
+
+export async function setDBCouponToAmountMinusOne(couponId: number) {
+  await pool.query(`UPDATE coupons SET amount = amount - 1 WHERE id = ?`, [
+    couponId,
+  ]);
+  return null;
+}
+
+export async function selectCoupon(couponId: number) {
+  const results = await pool.query(
+    ` SELECT
+    id,
+    title,
+    type,
+    discount,
+    start_date AS startDate,
+    expiry_date AS expiredDate,
+    amount
+    FROM coupons WHERE id = ?`,
+    [couponId],
+  );
+  const result = z.array(CouponSchema).parse(results[0]);
+  return result;
+}
+
 export async function insertCouponIntoUserCouponWallet(
   userId: number,
   couponId: number,
 ) {
-  await pool.query(`UPDATE coupons SET amount = amount - 1 WHERE id = ?`, [
-    couponId,
-  ]);
-
   const results = await pool.query(
     `INSERT INTO users_coupons (user_id, coupon_id, is_used) VALUES (?, ?, 0)`,
     [userId, couponId],
@@ -152,7 +177,7 @@ export async function insertCouponIntoUserCouponWallet(
   if (Array.isArray(results) && instanceOfSetHeader(results[0])) {
     return results[0].insertId;
   }
-  throw new Error('add new coupon failed');
+  throw new Error("add new coupon failed");
 }
 
 export async function selectUserCoupon(userId: number, couponId: number) {
