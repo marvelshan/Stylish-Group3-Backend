@@ -298,12 +298,15 @@ export async function checkout(req: Request, res: Response) {
 
     const products = await checkProducts(list);
     if (
-      (coupon[0].type === COUPON_NAME.DISCOUNT &&
+      (coupon.length > 0 &&
+        coupon[0].type === COUPON_NAME.DISCOUNT &&
         Math.floor(
           products.reduce((acc, product) => acc + product.price, 0) *
             ((100 - coupon[0].discount) / 100),
         ) !== subtotal) ||
-      (coupon[0].type === COUPON_NAME.FREE_SHIPPING && freight !== 0) ||
+      (coupon.length > 0 &&
+        coupon[0].type === COUPON_NAME.FREE_SHIPPING &&
+        freight !== 0) ||
       subtotal + freight !== total
     ) {
       throw new ValidationError("Price not match");
