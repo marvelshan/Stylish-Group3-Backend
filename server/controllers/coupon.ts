@@ -86,7 +86,7 @@ export async function getUserCoupons(req: Request, res: Response) {
     const userId = res.locals.userId;
     const result = await selectUserCoupons(userId);
 
-    return res.json(result);
+    return res.json({ data: result });
   } catch (err) {
     if (err instanceof Error) {
       res.status(400).json({ errors: err.message });
