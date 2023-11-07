@@ -57,6 +57,9 @@ const doc = {
     CouponId: {
       id: 12,
     },
+    Keyword: {
+      keyword: "經典",
+    },
     ValidCoupons: {
       data: [
         {
@@ -155,6 +158,26 @@ const doc = {
     },
     Errors: {
       error: "error message",
+    },
+    AutoCompleteSuccess: {
+      total: 3,
+      products: [
+        {
+          id: "161",
+          title: "經典修身長筒牛仔褲",
+          price: 1999,
+        },
+        {
+          id: "155",
+          title: "經典牛仔帽",
+          price: 799,
+        },
+        {
+          id: "153",
+          title: "經典商務西裝",
+          price: 3999,
+        },
+      ],
     },
   },
 };
