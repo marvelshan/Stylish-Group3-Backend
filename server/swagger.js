@@ -16,6 +16,55 @@ const doc = {
         number: "4465123465",
       },
     },
+    Comments: {
+      data: [
+        {
+          id: 1,
+          username: "Rick",
+          productId: 2,
+          userId: 1,
+          comment: "真不錯",
+          rating: 5,
+          createdAt: "2023-12-17T03:24:00",
+        },
+      ],
+    },
+    SignIn: {
+      provider: "native",
+      email: "Back@front.com",
+      password: "Back1234",
+    },
+    SignInFB: {
+      provider: "facebook",
+      access_token: "EAACEdEose0cBAHc6hv9kK8bMNs4XTrT0kVC1RgDZCVBptXW12AI",
+    },
+    SuccessSignIn: {
+      data: {
+        access_token:
+          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjMzLCJpYXQiOjE2OTkzNDA5MjYsImV4cCI6MTY5OTM0NDUyNn0.e7a2QoUBeVJiBPijDW1zXPXZ3bBVDJZByS90g6mU9Ys",
+        access_expired: 3600,
+        user: {
+          id: 33,
+          email: "back@front.com",
+          name: "Back",
+          picture: "",
+          provider: "native",
+        },
+      },
+    },
+    PostCommentBody: {
+      userId: 1,
+      productId: 1,
+      comment: "真不錯",
+      rating: 5,
+    },
+    SuccessComment: {
+      success: true,
+      message: "已新增評論",
+    },
+    FailedComment: {
+      error: "新增留言失敗",
+    },
     CheckoutList: {
       prime: "ccc1491581661f700bcc1cafec673c741f0665ca77550fe828ef38ee1437a2b8",
       couponId: 123,

@@ -5,7 +5,7 @@ async function fetchProducts(totalPages) {
   let productsAll = [];
   for (let page = 0; page <= totalPages; page++) {
     try {
-      await fetch(`http:localhost:3000/api/products?paging=${page}`, {
+      await fetch(`http://localhost:3000/api/products?paging=${page}`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
