@@ -251,31 +251,24 @@ export async function addCouponToUserCouponWallet(req: Request, res: Response) {
     // if (isCouponAlreadyExist.length > 0)
     //   throw new ValidationError("已經領過囉！");
 
-    const lock = cache.set("lock", "1", "PX", 5000, "NX");
+    const lock = cache.set(`${couponId}`, "1", "PX", 5000, "NX");
 
-    if (!lock) {
-      throw new ValidationError("活動太熱烈了!請再試一次");
-    }
+    if (!lock) throw new ValidationError("活動太熱烈了!請再試一次");
 
     const cachedCoupon = await cache.get(couponId);
 
     if (cachedCoupon) {
       const coupon: number = +cachedCoupon;
 
-      if (coupon < 0) {
-        throw new ValidationError("優惠券已經被搶完了！");
-      }
-
-      if (coupon === 0) {
-        set(couponId, "empty");
+      if (coupon <= 0) {
         throw new ValidationError("優惠券已經被搶完了！");
       }
 
       const minusOne = await cache.decr(couponId);
-      del("lock");
-      console.log(minusOne);
       await setDBCouponToAmountMinusOne(couponId);
       await insertCouponIntoUserCouponWallet(userId, couponId);
+      del("lock");
+      console.log(minusOne);
 
       return res.json({
         success: true,
