@@ -186,7 +186,11 @@
     },
     "/api/user/signup": {
       "post": {
-        "description": "",
+        "tags": [
+          "User"
+        ],
+        "summary": "註冊",
+        "description": "註冊",
         "parameters": [
           {
             "name": "body",
@@ -208,6 +212,12 @@
           }
         ],
         "responses": {
+          "200": {
+            "schema": {
+              "$ref": "#/definitions/SuccessSignIn"
+            },
+            "description": "OK"
+          },
           "400": {
             "description": "Bad Request"
           },
@@ -219,22 +229,36 @@
     },
     "/api/user/signin": {
       "post": {
-        "description": "",
+        "tags": [
+          "User"
+        ],
+        "summary": "登入",
+        "description": "登入",
         "parameters": [
           {
-            "name": "body",
+            "name": "Native",
             "in": "body",
+            "description": "登入資料",
             "schema": {
-              "type": "object",
-              "properties": {
-                "provider": {
-                  "example": "any"
-                }
-              }
+              "$ref": "#/definitions/SignIn"
+            }
+          },
+          {
+            "name": "Facebook",
+            "in": "body",
+            "description": "登入資料",
+            "schema": {
+              "$ref": "#/definitions/SignInFB"
             }
           }
         ],
         "responses": {
+          "200": {
+            "schema": {
+              "$ref": "#/definitions/SuccessSignIn"
+            },
+            "description": "OK"
+          },
           "400": {
             "description": "Bad Request"
           }
@@ -243,7 +267,22 @@
     },
     "/api/user/profile": {
       "get": {
-        "description": "",
+        "tags": [
+          "User"
+        ],
+        "summary": "取得會員資料",
+        "description": "取得會員資料",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "JWT Token",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Token"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "OK"
@@ -734,6 +773,75 @@
           }
         }
       }
+    },
+    "/api/v1/comments": {
+      "get": {
+        "tags": [
+          "Comments"
+        ],
+        "summary": "取得商品的評論",
+        "description": "取得商品的評論",
+        "parameters": [
+          {
+            "name": "product_id",
+            "in": "query",
+            "description": "商品id",
+            "required": true,
+            "type": "number"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Comments"
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/v1/comment": {
+      "post": {
+        "tags": [
+          "Comments"
+        ],
+        "summary": "新增評論",
+        "description": "新增評論",
+        "parameters": [
+          {
+            "name": "comment",
+            "in": "body",
+            "description": "評論內容",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/PostCommentBody"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/SuccessComment"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/FailedComment"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
     }
   },
   "definitions": {
@@ -748,6 +856,163 @@
               "example": "4465123465"
             }
           }
+        }
+      }
+    },
+    "Comments": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "number",
+                "example": 1
+              },
+              "username": {
+                "type": "string",
+                "example": "Rick"
+              },
+              "productId": {
+                "type": "number",
+                "example": 2
+              },
+              "userId": {
+                "type": "number",
+                "example": 1
+              },
+              "comment": {
+                "type": "string",
+                "example": "真不錯"
+              },
+              "rating": {
+                "type": "number",
+                "example": 5
+              },
+              "createdAt": {
+                "type": "string",
+                "example": "2023-12-17T03:24:00"
+              }
+            }
+          }
+        }
+      }
+    },
+    "SignIn": {
+      "type": "object",
+      "properties": {
+        "provider": {
+          "type": "string",
+          "example": "native"
+        },
+        "email": {
+          "type": "string",
+          "example": "Back@front.com"
+        },
+        "password": {
+          "type": "string",
+          "example": "Back1234"
+        }
+      }
+    },
+    "SignInFB": {
+      "type": "object",
+      "properties": {
+        "provider": {
+          "type": "string",
+          "example": "facebook"
+        },
+        "access_token": {
+          "type": "string",
+          "example": "EAACEdEose0cBAHc6hv9kK8bMNs4XTrT0kVC1RgDZCVBptXW12AI"
+        }
+      }
+    },
+    "SuccessSignIn": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "type": "object",
+          "properties": {
+            "access_token": {
+              "type": "string",
+              "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjMzLCJpYXQiOjE2OTkzNDA5MjYsImV4cCI6MTY5OTM0NDUyNn0.e7a2QoUBeVJiBPijDW1zXPXZ3bBVDJZByS90g6mU9Ys"
+            },
+            "access_expired": {
+              "type": "number",
+              "example": 3600
+            },
+            "user": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "number",
+                  "example": 33
+                },
+                "email": {
+                  "type": "string",
+                  "example": "back@front.com"
+                },
+                "name": {
+                  "type": "string",
+                  "example": "Back"
+                },
+                "picture": {
+                  "type": "string",
+                  "example": ""
+                },
+                "provider": {
+                  "type": "string",
+                  "example": "native"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "PostCommentBody": {
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "number",
+          "example": 1
+        },
+        "productId": {
+          "type": "number",
+          "example": 1
+        },
+        "comment": {
+          "type": "string",
+          "example": "真不錯"
+        },
+        "rating": {
+          "type": "number",
+          "example": 5
+        }
+      }
+    },
+    "SuccessComment": {
+      "type": "object",
+      "properties": {
+        "success": {
+          "type": "boolean",
+          "example": true
+        },
+        "message": {
+          "type": "string",
+          "example": "已新增評論"
+        }
+      }
+    },
+    "FailedComment": {
+      "type": "object",
+      "properties": {
+        "error": {
+          "type": "string",
+          "example": "新增留言失敗"
         }
       }
     },

@@ -55,7 +55,7 @@ export async function signIn(req: Request, res: Response) {
     }
     const isValidPassword = await userProviderModel.checkNativeProviderToken(
       user.id,
-      password
+      password,
     );
     if (!isValidPassword) {
       throw new Error("invalid password");
@@ -105,7 +105,7 @@ const ProfileSchema = z.object({
 
 async function getFbProfileData(userToken: string) {
   const response = await axios.get(
-    `https://graph.facebook.com/v16.0/me?fields=id,name,email,picture&access_token=${userToken}`
+    `https://graph.facebook.com/v16.0/me?fields=id,name,email,picture&access_token=${userToken}`,
   );
   const profile = ProfileSchema.parse(response.data);
   return profile;
@@ -174,6 +174,17 @@ export async function fbLogin(req: Request, res: Response) {
 }
 
 export async function getProfile(req: Request, res: Response) {
+  /**
+  #swagger.tags = ['User']
+  #swagger.summary = '取得會員資料'
+  #swagger.description = '取得會員資料'
+  #swagger.parameters['Authorization'] = {
+    in: 'header',
+    description: 'JWT Token',
+    required: true,
+    schema: { $ref: '#/definitions/Token' }
+  }
+  */
   try {
     const userId = res.locals.userId;
     const user = await userModel.findUserById(userId);
