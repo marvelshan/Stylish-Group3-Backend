@@ -33,28 +33,37 @@
     },
     "/api/products/search": {
       "get": {
+        "tags": [
+          "Search"
+        ],
+        "summary": "透過 auto complete 搜尋商品標題",
         "description": "",
         "parameters": [
           {
-            "name": "paging",
-            "in": "query",
-            "type": "string"
-          },
-          {
             "name": "keyword",
             "in": "query",
-            "type": "string"
+            "type": "string",
+            "description": "keyword",
+            "schema": {
+              "$ref": "#/definitions/Keyword"
+            }
           }
         ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/AutoCompleteSuccess"
+            }
           },
           "400": {
             "description": "Bad Request"
           },
           "500": {
-            "description": "Internal Server Error"
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/Errors"
+            }
           }
         }
       }
@@ -849,6 +858,24 @@
         }
       }
     },
+    "Keyword": {
+      "type": "object",
+      "properties": {
+        "keyword": {
+          "type": "string",
+          "example": "經典"
+        }
+      }
+    },
+    "Keyword": {
+      "type": "object",
+      "properties": {
+        "keyword": {
+          "type": "string",
+          "example": "經典"
+        }
+      }
+    },
     "ValidCoupons": {
       "type": "object",
       "properties": {
@@ -1128,6 +1155,35 @@
         "error": {
           "type": "string",
           "example": "error message"
+        }
+      }
+    },
+    "AutoCompleteSuccess": {
+      "type": "object",
+      "properties": {
+        "total results": {
+          "type": "number",
+          "example": 3
+        },
+        "products": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "example": "153"
+              },
+              "title": {
+                "type": "string",
+                "example": "經典商務西裝"
+              },
+              "price": {
+                "type": "number",
+                "example": 3999
+              }
+            }
+          }
         }
       }
     }

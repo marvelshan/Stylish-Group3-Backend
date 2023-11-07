@@ -4,10 +4,13 @@ import { fileURLToPath } from "url";
 import { nanoid } from "nanoid";
 import { NextFunction, Request, Response } from "express";
 import { fileTypeFromBuffer } from "file-type";
+import Manticoresearch from "manticoresearch";
+import { z } from "zod";
 
 import * as productModel from "../models/product.js";
 import * as productImageModel from "../models/productImage.js";
 import * as productVariantModel from "../models/productVariant.js";
+import client from "../constants/manticore.const.js";
 
 const HOTS_TITLE = "冬季新品搶先看";
 
@@ -170,6 +173,51 @@ export async function searchProducts(req: Request, res: Response) {
       return;
     }
     return res.status(500).json({ errors: "search products failed" });
+  }
+}
+
+export async function productAutoCompleteSearch(req: Request, res: Response) {
+  /*  #swagger.tags = ['Search']
+      #swagger.parameters['keyword'] = {
+      in: 'query',
+      type: 'string',
+      description: 'keyword',
+      schema: { $ref: '#/definitions/Keyword' }
+      }
+      #swagger.summary = '透過 auto complete 搜尋商品標題'
+      #swagger.responses[200] = {
+        schema: { $ref: '#/definitions/AutoCompleteSuccess' }
+      } 
+      #swagger.responses[500] = {
+        schema: { $ref: '#/definitions/Errors' }
+      }
+  */
+  const keyword =
+    typeof req.query.keyword === "string" ? req.query.keyword : "";
+  const searchApi = new Manticoresearch.SearchApi(client);
+
+  try {
+    var searchRequest = new Manticoresearch.SearchRequest();
+    searchRequest.index = "products";
+    searchRequest.limit = 10;
+    searchRequest.fulltext_filter = new Manticoresearch.MatchFilter(
+      `${keyword}*`,
+      "title"
+    );
+    const manticoreResponse = await searchApi.search(searchRequest);
+
+    const response = {
+      total: manticoreResponse.hits?.total,
+      products: manticoreResponse.hits?.hits?.map((hit) => ({
+        id: hit._id,
+        title: hit._source.title,
+        price: hit._source.price,
+      })),
+    };
+    res.status(200).json(response);
+  } catch (error) {
+    console.error("Failed to auto complete the search: ", error);
+    res.status(500).json({ success: false, message: "Internal Server Error." });
   }
 }
 
