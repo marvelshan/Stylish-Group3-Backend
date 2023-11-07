@@ -867,6 +867,15 @@
         }
       }
     },
+    "Keyword": {
+      "type": "object",
+      "properties": {
+        "keyword": {
+          "type": "string",
+          "example": "經典"
+        }
+      }
+    },
     "ValidCoupons": {
       "type": "object",
       "properties": {

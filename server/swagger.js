@@ -60,6 +60,9 @@ const doc = {
     Keyword: {
       keyword: "經典",
     },
+    Keyword: {
+      keyword: "經典",
+    },
     ValidCoupons: {
       data: [
         {
