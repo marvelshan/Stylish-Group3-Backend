@@ -33,6 +33,34 @@
     },
     "/api/products/search": {
       "get": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "paging",
+            "in": "query",
+            "type": "string"
+          },
+          {
+            "name": "keyword",
+            "in": "query",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/products/autosearch": {
+      "get": {
         "tags": [
           "Search"
         ],
@@ -867,15 +895,6 @@
         }
       }
     },
-    "Keyword": {
-      "type": "object",
-      "properties": {
-        "keyword": {
-          "type": "string",
-          "example": "經典"
-        }
-      }
-    },
     "ValidCoupons": {
       "type": "object",
       "properties": {
@@ -1161,7 +1180,7 @@
     "AutoCompleteSuccess": {
       "type": "object",
       "properties": {
-        "total results": {
+        "total": {
           "type": "number",
           "example": 3
         },

@@ -7,9 +7,21 @@ import {
 import { ValidationError } from "../utils/errorHandler.js";
 
 export async function getProductComments(req: Request, res: Response) {
-  const id = Number(req.query.id);
-  const comments = await selectComments(id);
-  return res.status(200).json({ data: comments });
+  try {
+    const productId = Number(req.query.product_id);
+    if (isNaN(productId)) throw new ValidationError("id must be a number");
+    const comments = await selectComments(productId);
+    return res.status(200).json({ data: comments });
+  } catch (error) {
+    if (error instanceof ValidationError) {
+      return res.status(400).json({ error: error.message });
+    }
+    if (error instanceof Error) {
+      return res.status(400).json({ error: error.message });
+    }
+    console.log(error);
+    return res.status(500).json({ error: "Internal server error" });
+  }
 }
 
 export async function addComments(req: Request, res: Response) {
