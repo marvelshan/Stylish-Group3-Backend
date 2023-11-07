@@ -141,40 +141,40 @@ export async function getProduct(req: Request, res: Response) {
   }
 }
 
-// export async function searchProducts(req: Request, res: Response) {
-//   try {
-//     const paging = Number(req.query.paging) || 0;
-//     const keyword =
-//       typeof req.query.keyword === "string" ? req.query.keyword : "";
-//     const [productsData, productsCount] = await Promise.all([
-//       productModel.searchProducts({ paging, keyword }),
-//       productModel.countProducts({ keyword }),
-//     ]);
-//     const productIds = productsData?.map?.(mapId);
-//     const [images, variants] = await Promise.all([
-//       productImageModel.getProductImages(productIds),
-//       productVariantModel.getProductVariants(productIds),
-//     ]);
-//     const imagesObj = productImageModel.groupImages(images);
-//     const variantsObj = productVariantModel.groupVariants(variants);
-//     const products = productsData
-//       .map(mapImages(imagesObj))
-//       .map(mapVariants(variantsObj));
-//     res.json({
-//       data: products,
-//       ...(productModel.PAGE_COUNT * (paging + 1) < productsCount
-//         ? { next_paging: paging + 1 }
-//         : {}),
-//     });
-//   } catch (err) {
-//     console.error(err);
-//     if (err instanceof Error) {
-//       res.status(500).json({ errors: err.message });
-//       return;
-//     }
-//     return res.status(500).json({ errors: "search products failed" });
-//   }
-// }
+export async function searchProducts(req: Request, res: Response) {
+  try {
+    const paging = Number(req.query.paging) || 0;
+    const keyword =
+      typeof req.query.keyword === "string" ? req.query.keyword : "";
+    const [productsData, productsCount] = await Promise.all([
+      productModel.searchProducts({ paging, keyword }),
+      productModel.countProducts({ keyword }),
+    ]);
+    const productIds = productsData?.map?.(mapId);
+    const [images, variants] = await Promise.all([
+      productImageModel.getProductImages(productIds),
+      productVariantModel.getProductVariants(productIds),
+    ]);
+    const imagesObj = productImageModel.groupImages(images);
+    const variantsObj = productVariantModel.groupVariants(variants);
+    const products = productsData
+      .map(mapImages(imagesObj))
+      .map(mapVariants(variantsObj));
+    res.json({
+      data: products,
+      ...(productModel.PAGE_COUNT * (paging + 1) < productsCount
+        ? { next_paging: paging + 1 }
+        : {}),
+    });
+  } catch (err) {
+    console.error(err);
+    if (err instanceof Error) {
+      res.status(500).json({ errors: err.message });
+      return;
+    }
+    return res.status(500).json({ errors: "search products failed" });
+  }
+}
 
 export async function productAutoCompleteSearch(req: Request, res: Response) {
   /*  #swagger.tags = ['Search']
