@@ -5,6 +5,7 @@ import { nanoid } from "nanoid";
 import { NextFunction, Request, Response } from "express";
 import { fileTypeFromBuffer } from "file-type";
 import Manticoresearch from "manticoresearch";
+import { z } from "zod";
 
 import * as productModel from "../models/product.js";
 import * as productImageModel from "../models/productImage.js";
@@ -140,58 +141,85 @@ export async function getProduct(req: Request, res: Response) {
   }
 }
 
-export async function searchProducts(req: Request, res: Response) {
-  try {
-    const paging = Number(req.query.paging) || 0;
-    const keyword =
-      typeof req.query.keyword === "string" ? req.query.keyword : "";
-    const [productsData, productsCount] = await Promise.all([
-      productModel.searchProducts({ paging, keyword }),
-      productModel.countProducts({ keyword }),
-    ]);
-    const productIds = productsData?.map?.(mapId);
-    const [images, variants] = await Promise.all([
-      productImageModel.getProductImages(productIds),
-      productVariantModel.getProductVariants(productIds),
-    ]);
-    const imagesObj = productImageModel.groupImages(images);
-    const variantsObj = productVariantModel.groupVariants(variants);
-    const products = productsData
-      .map(mapImages(imagesObj))
-      .map(mapVariants(variantsObj));
-    res.json({
-      data: products,
-      ...(productModel.PAGE_COUNT * (paging + 1) < productsCount
-        ? { next_paging: paging + 1 }
-        : {}),
-    });
-  } catch (err) {
-    console.error(err);
-    if (err instanceof Error) {
-      res.status(500).json({ errors: err.message });
-      return;
-    }
-    return res.status(500).json({ errors: "search products failed" });
-  }
-}
-
-// export async function productAutoCompleteSearch(req: Request, res: Response) {
+// export async function searchProducts(req: Request, res: Response) {
 //   try {
+//     const paging = Number(req.query.paging) || 0;
 //     const keyword =
 //       typeof req.query.keyword === "string" ? req.query.keyword : "";
-//     var searchRequest = new Manticoresearch.SearchRequest();
-//     searchRequest.index = "products";
-//     searchRequest.limit = 10;
-//     searchRequest.fulltext_filter = new Manticoresearch.MatchFilter(
-//       `${keyword}*`,
-//       "title"
-//     );
-//     var res = await searchApi.search(searchRequest);
-//     console.log(JSON.stringify(res, null, 4));
-//   } catch (error) {
-//     console.error("Failed to auto complete the search: ", error);
+//     const [productsData, productsCount] = await Promise.all([
+//       productModel.searchProducts({ paging, keyword }),
+//       productModel.countProducts({ keyword }),
+//     ]);
+//     const productIds = productsData?.map?.(mapId);
+//     const [images, variants] = await Promise.all([
+//       productImageModel.getProductImages(productIds),
+//       productVariantModel.getProductVariants(productIds),
+//     ]);
+//     const imagesObj = productImageModel.groupImages(images);
+//     const variantsObj = productVariantModel.groupVariants(variants);
+//     const products = productsData
+//       .map(mapImages(imagesObj))
+//       .map(mapVariants(variantsObj));
+//     res.json({
+//       data: products,
+//       ...(productModel.PAGE_COUNT * (paging + 1) < productsCount
+//         ? { next_paging: paging + 1 }
+//         : {}),
+//     });
+//   } catch (err) {
+//     console.error(err);
+//     if (err instanceof Error) {
+//       res.status(500).json({ errors: err.message });
+//       return;
+//     }
+//     return res.status(500).json({ errors: "search products failed" });
 //   }
 // }
+
+export async function productAutoCompleteSearch(req: Request, res: Response) {
+  /*  #swagger.tags = ['Search']
+      #swagger.parameters['keyword'] = {
+      in: 'query',
+      type: 'string',
+      description: 'keyword',
+      schema: { $ref: '#/definitions/Keyword' }
+      }
+      #swagger.summary = '透過 auto complete 搜尋商品標題'
+      #swagger.responses[200] = {
+        schema: { $ref: '#/definitions/AutoCompleteSuccess' }
+      } 
+      #swagger.responses[500] = {
+        schema: { $ref: '#/definitions/Errors' }
+      }
+  */
+  const keyword =
+    typeof req.query.keyword === "string" ? req.query.keyword : "";
+  const searchApi = new Manticoresearch.SearchApi(client);
+
+  try {
+    var searchRequest = new Manticoresearch.SearchRequest();
+    searchRequest.index = "products";
+    searchRequest.limit = 10;
+    searchRequest.fulltext_filter = new Manticoresearch.MatchFilter(
+      `${keyword}*`,
+      "title"
+    );
+    const manticoreResponse = await searchApi.search(searchRequest);
+
+    const response = {
+      total: manticoreResponse.hits?.total,
+      products: manticoreResponse.hits?.hits?.map((hit) => ({
+        id: hit._id,
+        title: hit._source.title,
+        price: hit._source.price,
+      })),
+    };
+    res.status(200).json(response);
+  } catch (error) {
+    console.error("Failed to auto complete the search: ", error);
+    res.status(500).json({ success: false, message: "Internal Server Error." });
+  }
+}
 
 function generateImages(files: { [fieldname: string]: Express.Multer.File[] }) {
   const images = Object.values(files).reduce(

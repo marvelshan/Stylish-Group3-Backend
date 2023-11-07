@@ -1,4 +1,3 @@
-declare module "manticoresearch";
 import Manticoresearch from "manticoresearch";
 
 const client = new Manticoresearch.ApiClient();

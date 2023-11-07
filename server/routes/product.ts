@@ -3,7 +3,7 @@ import { param, query } from "express-validator";
 import {
   getProducts,
   getProduct,
-  searchProducts,
+  productAutoCompleteSearch,
   createProduct,
   checkFileType,
   saveImagesToDisk,
@@ -21,7 +21,7 @@ router
     query("keyword").not().isEmpty().trim(),
     query("paging").if(query("paging").exists()).isInt(),
     validator.handleResult,
-    searchProducts
+    productAutoCompleteSearch
   );
 
 router
