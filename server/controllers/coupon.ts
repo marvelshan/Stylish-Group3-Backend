@@ -11,7 +11,7 @@ import {
   setDBCouponToZero,
 } from "../models/coupon.js";
 import * as couponModel from "../models/couponAdmin.js";
-import { cache, get, set } from "../utils/cache.js";
+import { cache, del, get, set } from "../utils/cache.js";
 import { ValidationError } from "../utils/errorHandler.js";
 
 export async function getCoupons(req: Request, res: Response) {
@@ -205,18 +205,8 @@ export async function addCoupon(req: Request, res: Response) {
       expiry_date,
       amount,
     );
-    set(
-      result.toString(),
-      JSON.stringify({
-        id: result,
-        type,
-        title,
-        discount,
-        start_date,
-        expiry_date,
-        amount,
-      }),
-    );
+    await cache.set(result.toString(), amount);
+
     if (result) {
       return res.json({
         success: true,
@@ -257,68 +247,59 @@ export async function addCouponToUserCouponWallet(req: Request, res: Response) {
     const { userId } = res.locals;
     const couponId = req.body.id;
 
-    const isCouponAlreadyExist = await checkIfUserHasCoupon(userId, couponId);
-    if (isCouponAlreadyExist.length > 0)
-      throw new ValidationError("已經領過囉！");
+    // const isCouponAlreadyExist = await checkIfUserHasCoupon(userId, couponId);
+    // if (isCouponAlreadyExist.length > 0)
+    //   throw new ValidationError("已經領過囉！");
 
-    cache.watch(couponId);
-    const cachedCoupon = await get(couponId);
-    const multi = cache.multi();
+    const lock = cache.set("lock", "1", "PX", 5000, "NX");
+
+    if (!lock) {
+      throw new ValidationError("活動太熱烈了!請再試一次");
+    }
+
+    const cachedCoupon = await cache.get(couponId);
 
     if (cachedCoupon) {
-      const coupon = JSON.parse(cachedCoupon);
+      const coupon: number = +cachedCoupon;
 
-      if (coupon.amount < 0) {
+      if (coupon < 0) {
         throw new ValidationError("優惠券已經被搶完了！");
       }
 
-      if (coupon.amount === 0) {
-        multi.set(couponId, JSON.stringify({ amount: -1 }));
-        setDBCouponToZero(couponId);
+      if (coupon === 0) {
+        set(couponId, "empty");
         throw new ValidationError("優惠券已經被搶完了！");
       }
 
-      const amount = coupon.amount - 1;
-      multi.set(
+      const minusOne = await cache.decr(couponId);
+      del("lock");
+      console.log(minusOne);
+      await setDBCouponToAmountMinusOne(couponId);
+      await insertCouponIntoUserCouponWallet(userId, couponId);
+
+      return res.json({
+        success: true,
+        message: "優惠券綁定成功！",
         couponId,
-        JSON.stringify({
-          amount,
-        }),
-      );
+      });
+    } else {
+      // If key is not in cache, fetch from DB
+      const dbCoupon = await selectCoupon(couponId);
 
-      const execResult = await multi.exec();
+      await cache.set(couponId, dbCoupon[0].amount);
 
-      if (execResult) {
-        console.log(amount);
-        await insertCouponIntoUserCouponWallet(userId, couponId);
+      if (dbCoupon[0].amount <= 0)
+        throw new ValidationError("優惠券已經用完了！");
 
-        return res.json({
-          success: true,
-          message: "優惠券綁定成功！",
-          couponId,
-        });
-      } else {
-        multi.unwatch();
-        throw new ValidationError("活動太熱烈了!請再試一次");
-      }
+      await setDBCouponToAmountMinusOne(couponId);
+      await insertCouponIntoUserCouponWallet(userId, couponId);
+
+      return res.json({
+        success: true,
+        message: "優惠券綁定成功！",
+        couponId,
+      });
     }
-    multi.unwatch();
-    // If key is not in cache, fetch from DB
-    const dbCoupon = await selectCoupon(couponId);
-
-    set(couponId, JSON.stringify({ amount: dbCoupon[0].amount - 1 }));
-
-    if (dbCoupon[0].amount === 0)
-      throw new ValidationError("優惠券已經用完了！");
-
-    await setDBCouponToAmountMinusOne(couponId);
-    await insertCouponIntoUserCouponWallet(userId, couponId);
-
-    return res.json({
-      success: true,
-      message: "優惠券綁定成功！",
-      couponId,
-    });
   } catch (err) {
     if (err instanceof Error) {
       return res.status(400).json({ errors: err.message });
