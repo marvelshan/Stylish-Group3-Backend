@@ -304,7 +304,10 @@ export async function checkout(req: Request, res: Response) {
       (coupon.length > 0 &&
         coupon[0].type === COUPON_NAME.DISCOUNT &&
         Math.floor(
-          products.reduce((acc, product) => acc + product.price, 0) *
+          products.reduce(
+            (acc, product) => acc + product.price * product.qty,
+            0,
+          ) *
             ((100 - coupon[0].discount) / 100),
         ) !== subtotal) ||
       (coupon.length > 0 &&
