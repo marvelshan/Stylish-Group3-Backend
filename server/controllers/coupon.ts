@@ -57,6 +57,7 @@ export async function deleteCoupon(req: Request, res: Response) {
     const { id } = req.body;
     const isDeleteAdminCoupon = await couponModel.deleteAdminCoupon(id);
     if (isDeleteAdminCoupon === 1) {
+      await cache.del(id.toString());
       res
         .status(200)
         .json({ success: true, message: "已成功將優惠券數量更改為零" });
@@ -209,7 +210,7 @@ export async function addCoupon(req: Request, res: Response) {
       discount,
       start_date,
       expiry_date,
-      amount,
+      amount
     );
     await cache.set(result.toString(), amount);
 
