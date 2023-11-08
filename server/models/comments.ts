@@ -17,8 +17,8 @@ function instanceOfSetHeader(object: any): object is ResultSetHeader {
 
 export const commentSchema = z.array(
   z.object({
-    id: z.number(),
-    user_name: z.string(),
+    commentId: z.number(),
+    username: z.string(),
     productId: z.number(),
     userId: z.number(),
     comment: z.string(),
@@ -29,7 +29,7 @@ export const commentSchema = z.array(
 
 export async function selectComments(productId: number) {
   const results = await pool.query(
-    `SELECT c.id, u.name, c.product_id AS productId, c.user_id AS userId, c.comment, c.rating, c.created_at AS createdAt
+    `SELECT c.id AS commentId, u.name AS username, c.product_id AS productId, c.user_id AS userId, c.comment, c.rating, c.created_at AS createdAt
     FROM comments c
     LEFT JOIN users u ON c.user_id = u.id
     WHERE c.product_id = ?`,

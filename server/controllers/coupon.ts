@@ -197,6 +197,12 @@ export async function addCoupon(req: Request, res: Response) {
         message: "注意!資料型別錯誤",
       });
     }
+    if (new Date(expiry_date) < new Date(start_date)) {
+      return res.status(400).json({
+        success: false,
+        message: "注意!結束時間不能小於開始時間",
+      });
+    }
     const result = await couponModel.createCoupon(
       type,
       title,

@@ -19,7 +19,9 @@ export async function createCoupon(
 
 export async function searchCoupon() {
   try {
-    const results = await pool.query(`SELECT * FROM coupons`);
+    const results = await pool.query(
+      `SELECT * FROM coupons ORDER BY amount DESC`
+    );
     return results[0];
   } catch (error) {
     console.log(`searchCoupon model is error by ${error}`);

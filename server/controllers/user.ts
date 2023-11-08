@@ -174,6 +174,17 @@ export async function fbLogin(req: Request, res: Response) {
 }
 
 export async function getProfile(req: Request, res: Response) {
+  /**
+  #swagger.tags = ['User']
+  #swagger.summary = '取得會員資料'
+  #swagger.description = '取得會員資料'
+  #swagger.parameters['Authorization'] = {
+    in: 'header',
+    description: 'JWT Token',
+    required: true,
+    schema: { $ref: '#/definitions/Token' }
+  }
+  */
   try {
     const userId = res.locals.userId;
     const user = await userModel.findUserById(userId);

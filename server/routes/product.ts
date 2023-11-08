@@ -4,6 +4,7 @@ import {
   getProducts,
   getProduct,
   searchProducts,
+  productAutoCompleteSearch,
   createProduct,
   checkFileType,
   saveImagesToDisk,
@@ -22,6 +23,15 @@ router
     query("paging").if(query("paging").exists()).isInt(),
     validator.handleResult,
     searchProducts
+  );
+
+router
+  .route("/products/autosearch")
+  .get(
+    query("keyword").not().isEmpty().trim(),
+    query("paging").if(query("paging").exists()).isInt(),
+    validator.handleResult,
+    productAutoCompleteSearch
   );
 
 router
