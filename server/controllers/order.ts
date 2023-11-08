@@ -222,6 +222,7 @@ async function confirmOrder({
   connection: Connection;
 }) {
   try {
+    const CASH_PAYMENT = "cash";
     connection.query("BEGIN");
 
     const variantIds = products.map(({ variantId }) => variantId);
@@ -248,7 +249,7 @@ async function confirmOrder({
       connection,
     );
 
-    if (prime === undefined) {
+    if (prime === CASH_PAYMENT) {
       connection.query("COMMIT");
       return;
     }
@@ -336,7 +337,7 @@ export async function checkout(req: Request, res: Response) {
       await confirmOrder({
         orderId,
         orderNumber,
-        prime,
+        prime: payment,
         amount: total,
         recipient,
         products,
