@@ -248,6 +248,11 @@ async function confirmOrder({
       connection,
     );
 
+    if (prime === undefined) {
+      connection.query("COMMIT");
+      return;
+    }
+
     await orderModel.transitionStatusFromCreatedToPaid(orderId, connection);
 
     await payByPrime({
@@ -326,6 +331,19 @@ export async function checkout(req: Request, res: Response) {
       products,
       connection,
     });
+
+    if (payment === "cash" && prime === undefined) {
+      await confirmOrder({
+        orderId,
+        orderNumber,
+        prime,
+        amount: total,
+        recipient,
+        products,
+        connection,
+      });
+      return res.status(200).json({ data: { number: orderNumber } });
+    }
 
     await confirmOrder({
       orderId,

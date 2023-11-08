@@ -247,9 +247,9 @@ export async function addCouponToUserCouponWallet(req: Request, res: Response) {
     const { userId } = res.locals;
     const couponId = req.body.id;
 
-    // const isCouponAlreadyExist = await checkIfUserHasCoupon(userId, couponId);
-    // if (isCouponAlreadyExist.length > 0)
-    //   throw new ValidationError("已經領過囉！");
+    const isCouponAlreadyExist = await checkIfUserHasCoupon(userId, couponId);
+    if (isCouponAlreadyExist.length > 0)
+      throw new ValidationError("已經領過囉！");
 
     const lock = cache.set(`lock:${couponId}`, "1", "PX", 5000, "NX");
 
