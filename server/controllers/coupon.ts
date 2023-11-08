@@ -300,6 +300,9 @@ export async function addCouponToUserCouponWallet(req: Request, res: Response) {
       });
     }
   } catch (err) {
+    if (err instanceof ValidationError) {
+      return res.status(400).json({ errors: err.message });
+    }
     if (err instanceof Error) {
       return res.status(400).json({ errors: err.message });
     }

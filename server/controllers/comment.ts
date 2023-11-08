@@ -31,7 +31,7 @@ export async function getProductComments(req: Request, res: Response) {
       return res.status(400).json({ error: error.message });
     }
     if (error instanceof Error) {
-      return res.status(400).json({ error: error.message });
+      return res.status(500).json({ error: error.message });
     }
     console.log(error);
     return res.status(500).json({ error: "Internal server error" });
@@ -73,7 +73,7 @@ export async function addComments(req: Request, res: Response) {
       return res.status(400).json({ error: error.message });
     }
     if (error instanceof Error) {
-      return res.status(400).json({ error: error.message });
+      return res.status(500).json({ error: error.message });
     }
     console.log(error);
     return res.status(500).json({ error: "Internal server error" });
