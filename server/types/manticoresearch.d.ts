@@ -7,6 +7,12 @@ declare module "manticoresearch" {
     constructor(queryString: string, queryFields: string);
   }
 
+  export class MatchPhraseFilter {
+    queryPhrase: string;
+    queryFields: string;
+    constructor(queryPhrase: string, queryFields: string);
+  }
+
   // Define the SearchRequest class according to provided properties
   export class SearchRequest {
     index: string;

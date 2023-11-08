@@ -200,11 +200,12 @@ export async function productAutoCompleteSearch(req: Request, res: Response) {
     var searchRequest = new Manticoresearch.SearchRequest();
     searchRequest.index = "products";
     searchRequest.limit = 10;
-    searchRequest.fulltext_filter = new Manticoresearch.MatchFilter(
+    searchRequest.fulltext_filter = new Manticoresearch.MatchPhraseFilter(
       `${keyword}*`,
       "title"
     );
     const manticoreResponse = await searchApi.search(searchRequest);
+    console.log(manticoreResponse.hits);
 
     const response = {
       total: manticoreResponse.hits?.total,
